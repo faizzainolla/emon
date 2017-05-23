@@ -1,0 +1,28 @@
+							<table style='font-size:11px' class="table table-bordered table-striped table-hover table-heading table-datatable" id="datatable-2">
+								<thead>
+									<tr>
+										<th>Kode Wilayah</th>
+										<th>Nama Wilayah</th>
+										<th>List System</th>
+										<th>PIC</th>
+										<th>Contact PIC</th>
+									</tr>
+								</thead>
+								<tbody>
+								<!-- Start: list_row -->
+									<?php 
+									foreach($wilayah as $row){
+										
+									?>
+									<tr>
+										<td><?php echo $row['kd_wilayah'];?></td>
+										<td><?php echo $row['nm_wilayah'];?></td>
+										<td><?php echo $row['list_system'];?></td>
+										<td><?php echo $row['nama_pic'];?></td>
+										<td><?php echo $row['cp_pic'];?></td>
+										
+									</tr>
+									<?php };?>
+								<!-- End: list_row -->
+								</tbody>
+							</table>

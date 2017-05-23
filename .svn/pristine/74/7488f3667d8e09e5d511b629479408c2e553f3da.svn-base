@@ -1,0 +1,129 @@
+<div class="span12">      		
+	      		
+	      		<div class="widget ">
+	      			
+	      			<div class="widget-header">
+	      				<i class="icon-bar-chart"></i>
+	      				<h3>Form Ticket</h3>
+	  				</div> <!-- /widget-header -->
+					
+					<div class="widget-content">
+				<?php echo $this->session->flashdata('notif')?>
+							<form class="form-horizontal" id="tickform" enctype="multipart/form-data" role="form" method="post" action="<?php echo base_url();?>app/insert_ticket">
+									<fieldset>
+										<div class="control-group">											
+											<label class="control-label">Nama daearah</label>
+											<div class="controls">
+												<input type="hidden" class="form-control" name='kdwil' value="<?php echo $wil['kd_wilayah'];?>">
+												<input type="text" class="span4 form-control" readonly="" value="<?php echo $wil['nm_wilayah'];?>">
+											</div> <!-- /controls -->				
+										</div> <!-- /control-group -->
+
+										<div class="control-group">											
+											<label class="control-label">Jenis Request</label>
+											<div class="controls">
+												<div class="col-lg-3 col-md-3 col-sm-3" >
+												<input type="radio" name="radio" id="troble" value="1" checked="" > Permasalahan
+												</div>
+												<div class="col-lg-3 col-md-3 col-sm-3" >
+												<input type="radio" name="radio" id="upfitur" value="2" > Penambahan Fitur
+												</div>
+												<div class="col-lg-3 col-md-3 col-sm-3" >
+												<input type="radio" name="radio" id="upmodul" value="3" > Penambahan modul
+												</div>
+											</div> <!-- /controls -->				
+										</div> <!-- /control-group -->
+
+										<div class="control-group">											
+											<label class="control-label">System</label>
+											<div class="controls">
+											<select class="span4 populate placeholder select" name="sistem" required='' id="csystem" onchange="loadmodul();spare()">
+											<option value="">-- Pilih Sistem --</option>
+											<?php foreach($sys as $row){
+												echo "<option value='".$row['kd_system']."'>".$row['nm_system']."</option>";
+											}
+											?>
+											</select>
+												
+											</div> <!-- /controls -->				
+										</div> <!-- /control-group -->
+
+										<div style="display: none" class="det">
+										<div class="control-group">											
+											<label class="control-label">Sub System</label>
+											<div class="controls">
+												<input type="radio" name="subs" id="" class='subs' value="Simakda - " > Simakda
+												<input type="radio" name="subs" id="" class='subs' value="Siadinda - " > Siadinda
+											</div> <!-- /controls -->				
+										</div> <!-- /control-group -->
+										</div>
+
+										<div class="control-group cmod">											
+											<label class="control-label">Modul</label>
+											<div class="controls">
+												<select class="span4 populate placeholder select" name="modul" id="cmodul" required='' placeholder='Pilih' >
+												</select>
+											</div> <!-- /controls -->				
+										</div> <!-- /control-group -->
+
+
+										<div style="display: none" class="ketfitur">
+										<div class="control-group">											
+											<label class="control-label">Keterangan Fitur</label>
+											<div class="controls">
+												<textarea class="form-control span5" rows="2" id="ketfitur" name="ketfitur" ></textarea>
+											</div> <!-- /controls -->				
+										</div> <!-- /control-group -->
+										</div>
+
+										<div class="control-group">											
+											<label class="control-label">Tanggal Request</label>
+											<div class="controls">
+											 <div class="input-prepend input-append">
+                                                 
+                                                  <input type="text" class="span3 form-control" id="datetime_example" placeholder="" name="tglreq" required=''>
+                                                  <span class="add-on"><i class="icon-calendar"></i></span>
+                                                </div>
+												
+											</div> <!-- /controls -->				
+										</div> <!-- /control-group -->
+
+										<div class="control-group">											
+											<label class="control-label">Prioritas</label>
+											<div class="controls">
+												<select class="populate placeholder " name="prioritas" required=''>
+												<option value="">-- Pilih Prioritas --</option>
+												<option>Urgent</option>
+												<option>Biasa</option>
+												</select>
+											</div> <!-- /controls -->				
+										</div> <!-- /control-group -->
+
+										<div class="control-group">											
+											<label class="control-label">Uraian</label>
+											<div class="controls">
+												<textarea class="form-control " rows="3" id="" name="uraian" required=""></textarea>
+											</div> <!-- /controls -->				
+										</div> <!-- /control-group -->
+
+										<div class="control-group">											
+											<label class="control-label">Lampiran Gambar</label>
+											<div class="controls">
+												<input type="file" name="userfile" id="file" />
+								<small style='color:red'>max upload : 5Mb | format : jpg, jpeg.</small>
+											</div> <!-- /controls -->				
+										</div> <!-- /control-group -->
+
+
+
+									</fieldset>
+									<div class="form-actions">
+											<button type="submit" class="btn btn-primary btn-label-left" id='saveticket' name="saveticket">
+											<span><i class="fa fa-save"> Simpan</i></span></button>
+											<button type="reset" class="btn btn-danger btn-label-left">
+											<span><i class="fa fa-ban"> Cancel</i></span></button>
+									</div>
+								</form>
+					</div>
+				</div>
+</div>

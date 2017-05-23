@@ -1,0 +1,63 @@
+<div class="span12">   
+	<div class="widget ">
+			<div class="widget-header">
+				<i class="icon-list"></i>
+				<h3>Data Request</h3>
+			</div> <!-- /widget-header -->
+					
+			<div class="widget-content">
+			<table style='font-size:11px;' class='table table-bordered table-striped table-hover table-heading table-datatable' id='datatable-1'>
+         	  <thead style="background-color: #e5e5e5;">
+	            <tr>
+	              <th width="200px">Nama Daerah</th>
+	              <th>Nama Sistem</th>
+	              <th width="100px">Tanggal diterima</th>
+	              <th width="100px">Jenis Data</th>
+	              <th width="50px">Kapasitas</th>
+	              <th width="10px">Status</th>
+	              <th>Keterangan</th>
+	              <th> Detail</th>
+	              
+	            </tr>
+          	   </thead>
+          	   <tbody id="tbtrack"></tbody>
+          	</table>
+          	   <br>
+          	   <small>* Keterangan : 
+          	   <i class='icon-exclamation-sign ' style='color:red;font-size:14px'></i> Belum dikirim |
+          	   <i class='icon-plus-sign' style='color:green;font-size:14px'></i> Sudah dikirim 
+          	   </small><br>
+          	   <small>* Default refresh otomatis setiap 60 detik..</small><br>
+			</div>
+			<div id='diaHTMLEd' style='display:none'>
+			  <div id='divRTE'></div>
+			  <!--iframe src='xrte.html' height='300' width='500'></iframe-->
+			</div>
+	</div>
+</div>             
+<script type="text/javascript">
+/* var $results = $('#tbtrack'),
+	    loadInterval = 60000;
+	    refresh = 2000;
+	   
+	(function loader() {
+
+	    $.get(baseurl+'app/track', function(html){
+
+	            $results.hide(200, function() {
+	                $results.empty();
+	                $results.html(html);
+	                $results.show(200, function() {
+	                	console.log($results);
+	                	 $('[data-toggle="tooltip"]').tooltip(); 
+
+
+	                    setTimeout(loader, loadInterval);//refrehs data row
+	                });
+	            });
+	    });
+	}
+
+
+	)(); */
+</script>

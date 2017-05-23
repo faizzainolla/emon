@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+<head>
+    <meta charset="utf-8">
+   <title><?php echo $title;?></title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">    
+    
+    <link href="<?php echo base_url();?>assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo base_url();?>assets/css/bootstrap-responsive.min.css" rel="stylesheet">
+   <!--  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" />
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600" rel="stylesheet"> -->
+	 <link href="<?php echo base_url();?>assets/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    
+    <link href="<?php echo base_url();?>assets/css/style.css" rel="stylesheet">
+    <link href="<?php echo base_url();?>assets/css/pages/dashboard.css" rel="stylesheet">
+    
+
+
+    <link href="<?php echo base_url();?>assets/plugins/editable/css/bootstrap-editable.css" rel="stylesheet">
+	<link href="<?php echo base_url();?>assets/plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet">
+	<link href="<?php echo base_url();?>assets/plugins/fancybox/jquery.fancybox.css" rel="stylesheet">
+	<link href="<?php echo base_url();?>assets/plugins/select2/select2.css" rel="stylesheet">
+	<link rel="icon" type="image/png" href="<?php echo base_url();?>assets/img/msm.png" />
+    <link rel="stylesheet" href="<?php echo base_url();?>assets/plugins/summernote/summernote.css">
+    <link rel="stylesheet" href="<?php echo base_url();?>assets/plugins/summernote/summernote-bs3.css">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+	<!--border -->
+
+	<!---easyui--->
+	<!----CK---->
+		<!--link rel="stylesheet" href="<?php echo base_url();?>assets/js/ckeditor/ckeditor.js">
+		<link rel="stylesheet" href="<?php echo base_url();?>assets/js/ckeditor/adapters/jquery.js"-->
+		<link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>easyui/demo/demo.css"/>
+		<link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>easyui/themes/default/easyui.css"/>
+
+		<script type="text/javascript" src="<?php echo base_url(); ?>easyui/jquery-1.8.0.min.js"></script>
+		<script type="text/javascript" src="<?php echo base_url(); ?>easyui/jquery.easyui.min.js"></script>
+		<script type="text/javascript" src="<?php echo base_url(); ?>easyui/jquery.edatagrid.js"></script>
+		<script type="text/javascript" src="<?php echo base_url(); ?>easyui/autoCurrency.js"></script>
+		<script type="text/javascript" src="<?php echo base_url(); ?>easyui/numberFormat.js"></script>
+		<script type="text/javascript" src="<?php echo base_url(); ?>easyui/ajaxfileupload.js"></script>
+
+		<script src="<?php echo base_url(); ?>easyui/jquery-ui.min.js"></script>
+	<!-----END---->
+    
+  </head>
+		<!--editable-->
+		
+<body>
+
+<!--Start Header-->

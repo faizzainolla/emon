@@ -1,0 +1,218 @@
+<div class="span12">      		
+<div class="widget ">
+	<div class="widget-header">
+		<i class="icon-map-marker"></i>
+		<h3>Wilayah Manajemen</h3>
+	</div> <!-- /widget-header -->
+	<div class="widget-content">
+	 <div class="control-group">
+			<div class="controls">
+			<div class="accordion" id="accordion2">
+				<div class="accordion-group">
+					<div class="accordion-heading">
+					   <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
+                                    Input Wilayah
+                        </a>
+					</div>
+					<div id="collapseOne" class="accordion-body collapse in">
+                                  <div class="accordion-inner">
+                                <?php echo $this->session->flashdata('notif')?>
+								<form class="form-horizontal" role="form" method="post" action="<?php echo base_url();?>app/insert_wilayah">
+									<fieldset>
+										<div class="control-group hide">											
+											<label class="control-label">Kode Wilayah</label>
+											<div class="controls">
+												<input readonly="true" type="text" class="span1" value="<?php echo $max['max']+1?>" name="kode_wilayah" id="kode_wilayah" required>
+											</div> <!-- /controls -->				
+										</div>
+										<div class="control-group">											
+											<label class="control-label">Area</label>
+											<div class="controls">
+												<select class=" span4 populate placeholder select" name="kode_prop" id="kode_prop" onchange="loadarea();" required=''>
+												<option>-- Pilih Area --</option>
+												
+												<?php foreach($prop as $row){
+													$selected = ($row['kd_area'] == 1102)?'selected':'';
+													$isiarea  = $row['kd_area']." | ".$row['nm_area'];
+													echo "<option value='".$row['kd_area']."'>".$isiarea."</option>";
+												}
+												?>
+												
+												</select>
+											</div> <!-- /controls -->				
+										</div>
+										<div class="control-group cmod">											
+											<label class="control-label">Sub Area</label>
+											<div class="controls">
+												<select class="span4 populate placeholder select" name="kode_kab" id="kode_kab" required='' placeholder='Pilih' >
+												
+												</select>
+
+											</div> <!-- /controls -->						
+										</div> <!-- /control-group -->
+										
+										<div class="control-group">											
+											<label class="control-label">List Sistem</label>
+											<div class="controls">
+												<textarea type="text" class="span4" name="list_sistem" id="list_sistem" required></textarea>
+												<button type="button" class="btn btn-success btn-sm" id="btn_wilayah"><i class="icon-list"></i></button>
+											</div> <!-- /controls -->						
+										</div> <!-- /control-group -->
+
+										<div class="widget-content">											
+											<fieldset>
+										<legend class="scheduler-border">PIC(Person-In-Charge)</legend>
+																<div class="control-group">											
+																	<label class="control-label">Nama</label>
+																	<div class="controls">
+																		<input type="text" class="span4" name="nama_pic" required>
+																	</div> <!-- /controls -->				
+																</div>
+																<div class="control-group">											
+																	<label class="control-label">Jabatan</label>
+																	<div class="controls">
+																	<select class="span4 populate placeholder select" name="jabatan_pic">
+																		<option value="">-- Pilih Jabatan --</option>
+																		<option value="AD">Management</option>
+																		<option value="1">Helpdesk</option>
+																		<option value="2">Asisten Programmer</option>
+																		<option value="3">Koordinator</option>
+																		<option value="4">Implementator</option>
+																		<option value="5">Junior Supervisor Programmer</option>
+																		<option value="6">Residen Consultant</option>
+																		<option value="7">ADM Tender</option>
+																		<option value="8">Bendahara</option>
+																		<option value="9">Sekretaris</option>
+																		<option value="10">Programmer</option>
+																		<option value="11">Akuntan</option>
+																		<option value="12">Projek Manager</option>
+																		<option value="13">QA</option>
+
+																		</select>
+																		
+																	</div> <!-- /controls -->				
+																</div>
+																<div class="control-group">											
+																	<label class="control-label">Contact (e-mail/HP)</label>
+																	<div class="controls">
+																		<input type="text" class="span2" name="cp_pic" required>
+																	</div> <!-- /controls -->				
+																</div>
+												</fieldset>			
+										</div> <!-- /control-group -->
+										<div class="help-block with-errors" id="error_custom1"></div>
+
+										<div class="control-group">											
+											<label class="control-label">Keterangan</label>
+											<div class="controls">
+												<textarea type="text" class="span4" name="keterangan"></textarea>
+											</div> <!-- /controls -->				
+										</div>
+									</fieldset>
+									<div class="form-actions">
+											<button type="submit" class="btn btn-primary btn-label-left" name="save">
+											<span><i class="icon-save"> Simpan</i></span></button>
+											<button type="reset" class="btn btn-danger btn-label-left">
+											<span><i class="icon-ban-circle"> Cancel</i></span></button>
+									</div>
+								</form>
+									
+										
+									
+                              </div>
+                            </div>
+				</div>
+			<div class="accordion-group">
+							<div class="accordion-heading">
+							  <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
+								Data Wilayah
+							  </a>
+							</div>
+				<div id="collapseTwo" class="accordion-body collapse">
+					<div class="accordion-inner">
+							<table style='font-size:11px' class="table table-bordered table-striped table-hover table-heading table-datatable" id="datatable-2">
+								<thead>
+									<tr>
+										<th>Kode Area</th>
+										<th>Nama Wilayah</th>
+										<th>List System</th>
+										<th>PIC</th>
+										<th>Contact PIC</th>
+										<th width="80px;">Aksi</th>
+									</tr>
+								</thead>
+								<tbody>
+								<!-- Start: list_row -->
+									<?php 
+									foreach($wilayah as $row){
+										
+									?>
+									<tr>
+										<td><?php echo $row['kd_subarea'];?></td>
+										<td><?php echo $row['nm_area'];?></td>
+										<td><?php echo $row['list_system'];?></td>
+										<td><?php echo $row['nama_pic'];?></td>
+										<td><?php echo $row['cp_pic'];?></td>
+										<td><button type="submit" class="btn btn-danger btn-label-center" name="save" onclick="javascript:master_hapus('ms_wilayah','kd_wilayah','<?php echo $row['kd_wilayah'] ?>')">
+											<span><i class="icon-remove"></i></span></button>
+											<button type="submit" class="btn btn-success btn-label-center" name="save" onclick="javascript:edit_wilayah(
+											'<?php echo $row['kd_wilayah'] ?>',
+											'<?php echo $row['kd_area'] ?>',
+											'<?php echo $row['kd_subarea'] ?>',
+											'<?php echo $row['nm_area'] ?>',
+											'<?php echo $row['list_system'] ?>',
+											'<?php echo $row['nama_pic'] ?>',
+											'<?php echo $row['jabatan_pic'] ?>',
+											'<?php echo $row['cp_pic'] ?>',
+											'<?php echo $row['keterangan'] ?>'
+											)">
+											<span><i class="icon-pencil"></i></span></button>
+										</td>
+										
+									</tr>
+									<?php };?>
+								<!-- End: list_row -->
+								</tbody>
+							</table>
+			
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		</div>
+		</div>
+	 </div>
+</div>
+<!--POP UP-->
+<div id="dialog-wilayah" title="List Sistem" >
+	<div class="widget-content">
+			<div id='tabelsistem' ></div>
+			<div class="form-actions" align="center">
+					<button type="submit" id="sis_simpan" class="btn btn-primary btn-label-left" name="save">
+					<span><i class="icon-save"> Pilih</i></span></button>
+					<button type="reset" id="sis_keluar" class="btn btn-danger btn-label-left">
+					<span><i class="icon-ban-circle"> Cancel</i></span></button>
+			</div>
+	</div>
+</div>	
+
+<script type="text/javascript">
+function edit_wilayah(kd_wilayah,kd_area,kd_subarea,nm_area,list_system,nama_pic,jabatan_pic,cp_pic,keterangan){
+	var kd_wilayah 	= $('#kode_wilayah').val();
+	var nm_area 	= nm_area;
+	var list_sistem = list_system;
+	var nama_pic 	= nama_pic;
+	var jabatan_pic = jabatan_pic;
+	var cp_pic 		= cp_pic;
+	
+	
+	$('#kode_prop').val(kd_area);
+	$('#kode_wilayah').val(kd_wilayah);
+	$('#list_sistem').val(list_sistem);
+}
+	
+$(function(){
+	
+});
+</script>

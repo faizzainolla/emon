@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title><?php echo $title;?></title>
+  <style type="text/css">
+@page {
+  margin: 1cm 1cm 1cm 1cm ;
+}
+body {
+  font-family: sans-serif;
+  margin: 2cm 0;
+  text-align: justify;
+}
+#header,
+#footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  color: #aaa;
+  font-size: 0.7em;
+}
+#header {
+  top: 0;
+  border-bottom: 0.1pt solid #aaa;
+}
+#footer {
+  bottom: 0;
+  border-top: 0.1pt solid #aaa;
+}
+
+
+.page-number {
+  text-align: center;
+}
+.page-number:before {
+  content: "Halaman " counter(page);
+}
+hr {
+  page-break-after: always;
+  border: 0;
+}
+    #outtable{
+      padding: 20px;
+      border:1px solid #e3e3e3;
+      width:600px;
+      border-radius: 5px;
+    }
+ 
+    .short{
+      width: 50px;
+    }
+ 
+    .normal{
+      width: 150px;
+    }
+ 
+    table{
+      border-collapse: collapse;
+      font-family: arial;
+      color:#5E5B5C;
+      width: 100%;
+    }
+ 
+    thead th{
+      text-align: left;
+      padding: 10px;
+    }
+ 
+    tbody td{
+      border-top: 1px solid #e3e3e3;
+      padding: 10px;
+    }
+ 
+ 
+    tbody tr:hover{
+      background: #EAE9F5
+    }
+    .cn{
+    top:12px;
+    left: 60px;
+    position: fixed;
+    font-size: 1em;
+    color: #215;
+    font-weight: bold;
+
+  }
+    .ca{
+    top:25px;
+    left: 60px;
+    position: fixed;
+    font-size: 0.8em;
+  }
+   .ct{
+    top:35px;
+    left: 60px;
+    position: fixed;
+    font-size: 0.8em;
+  }
+    .nmwil{
+   
+    font-size: 0.7em;
+    font-weight: bold;
+
+  }
+   
+
+  </style>
+</head>
+<body>
+<div id="header">
+    <img src="<?php echo base_url()?>assets/img/msm.png" width='50px' style="margin-top:10px;"/>
+    <div class="cn">MSM Consultant</div>
+    <div class="ca">Jln. T. Nyak Arief No.160 Jeulingke - Banda Aceh</div>
+    <div class="ct">Telp / Fax : (0651) 7555559  | Email : qa.msmaceh@gmail.com | Website : www.msmaceh.com </div>
+    <div>&nbsp;</div>
+   
+</div>
+ 
+  <div class="nmwil"> <?php 
+   $wil = $q->row_array();
+   echo "Wilayah Kerja : ". $wil['nmwil'];
+   echo "<br>Periode : ". $bulan;
+  ?> </div>
+  <div>&nbsp;</div>
+
+  
+
+  <?php 
+ function conv_bulan($bulan){
+  switch ($bulan){
+  case 1: return "Januari"; break;
+  case 2: return "Februari"; break;
+  case 3: return "Maret"; break;
+  case 4: return "April"; break;
+  case 5: return "Mei"; break;
+  case 6: return "Juni"; break;
+  case 7: return "Juli"; break;
+  case 8: return "Agustus"; break;
+  case 9: return "September";break;
+  case 10: return "Oktober"; break;
+  case 11: return "November"; break;
+  case 12: return "Desember"; break;
+  }
+  }
+  
+   $tglctk=date(d)." ".conv_bulan(date(m))." ".date(Y);
+
+	 $tabel =" <table style='font-size:8px; width='100%''  
+                   class='table table-bordered' >
+                        <thead style='background-color: #e5e5e5;'>
+                          <tr>
+                            <th width='3%'>No</th>
+                            <th>Nama System</th>
+                            <th>Nama Modul</th>
+                            <th>Tanggal Req</th>
+                            <th>Jenis Req</th>
+                            <th width='30%'>Uraian</th>
+                            <th>Tenaga Ahli</th>
+                            <th>Tanggal Selesai</th>
+                           
+                         
+                          </tr>
+                        </thead>
+                        <tbody>";
+
+         $no=1;
+          foreach($q->result_array() as $resulte)
+        {
+
+     
+       $coljnsreq='';
+        if($resulte['jns_req']=='1'){
+                $coljnsreq="Permasalahan";
+                }
+                if($resulte['jns_req']=='2'){
+                $coljnsreq="Update Fitur";
+                }
+                if($resulte['jns_req']=='3'){
+                $coljnsreq="Update Modul";
+                }
+
+       $kd_wilayah=$this->session->userdata('kd_wil');
+
+          $colkoor= $resulte['namaver'];         
+          $colta = $resulte['namata'];
+          
+
+   
+
+       if($resulte['image']==''){
+        $colimg="<i class='icon-picture ' style='font-size:14px'></i>";
+       }else{
+        $colimg="<a class='single' href='../screenshoot/".$resulte['image']."' >
+        <i class='icon-picture ' style='color:blue;font-size:14px'></i></a>";
+       }
+
+
+
+
+           $tabel .="<tr>
+                      <td>".$no++.".</td>
+                     
+                      <td>".$resulte['nmsys']."</td>
+                      <td>".$resulte['title']."</td>
+                      <td>".$resulte['tglreq']."</td>
+                      <td>".$coljnsreq."</td>";
+            $tabel .="<td>".$resulte['uraian']."</td>";
+            $tabel .="<td>".$colta."</td>";
+    
+            $tabel .="<td>".$resulte['tgl_selesai']."</td>
+            </tr>";
+            
+         }
+            $tabel .= "</tbody>
+               </table>";
+    
+
+       echo $tabel;
+       $ttd =$qp->row_array();
+
+        $tb2 ="
+            <table width='100%' style='border:0;font-size:11px' class='d'>
+            <tr>
+            <th width='35%'> ".$wil['nmwil'].",  ".$tglctk."<br>
+            Wakil Kepala Cabang
+            <br><br><br><br><br><br>
+            Taufik S. Prabowo
+
+            </th>
+            <th><br>Pemda Terkait
+            <br><br><br><br><br><br>
+            ".$ttd['pemda']."
+            </th>
+
+            </tr>
+
+            </table>
+    ";
+    echo $tb2;
+
+
+       ?>
+        <div id='footer'>
+          <div >
+            <?php 
+           echo "Wilayah Kerja : ". $wil['nmwil'];
+           echo " | Periode : ". $bulan; 
+            ?>
+
+          </div>
+       </div>
+</body>
+</html>

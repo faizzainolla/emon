@@ -1,0 +1,25 @@
+
+	    <div class="span12">
+          <div class="widget">
+            <div class="widget-header"> <i class="icon-bookmark"></i>
+              <h3>Shortcuts</h3>
+            </div>
+            <!-- /widget-header -->
+            <div class="widget-content">
+              <div class="shortcuts">
+              <a href="<?php echo base_url();?>app/page_monitoring" class="shortcut"><i class="shortcut-icon icon-bar-chart"></i>
+              <span class="shortcut-label">e-Monitoring</span> </a>
+              <a href="<?php echo base_url();?>app/page_kinerja" class="shortcut"> <i class="shortcut-icon icon-calendar"></i>
+              <span class="shortcut-label">e-Kinerja</span> </a>
+              <a href="<?php echo base_url();?>app/chpass" class="shortcut"><i class="shortcut-icon icon-lock"></i>
+              <span class="shortcut-label">Set password</span> </a>
+              <a href="<?php echo base_url();?>app/logout" class="shortcut"><i class="shortcut-icon icon-signout"></i>
+              <span class="shortcut-label">Logout</span> </a>
+              <!-- /shortcuts --> 
+            </div>
+            <!-- /widget-content --> 
+          </div>
+          </div>
+          <!-- /widget -->
+        </div>
+        <!-- /span3 -->

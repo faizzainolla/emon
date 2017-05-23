@@ -1,0 +1,119 @@
+
+<div class="navbar navbar-fixed-top">
+	<div class="navbar-inner">
+		<div class="container">
+			
+			<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</a>
+			
+			<a class="brand" href="<?php echo base_url();?>app">
+				e-Monitoring Project			
+			</a>		
+			
+			<div class="nav-collapse">
+				<ul class="nav pull-right">
+					<li class="dropdown">						
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+							<i class="icon-cog"></i>
+							Account
+							<b class="caret"></b>
+						</a>
+						
+						<ul class="dropdown-menu">
+							<li><a href="<?php echo base_url();?>app/chpass"><i class="icon-lock"></i> Ganti password</a></li>
+							<li><a href="<?php echo base_url();?>app/logout"><i class="icon-signout"></i> Logout</a></li>
+						</ul>						
+					</li>
+				</ul>
+				<!-- <form class="navbar-search pull-right">
+					<input type="text" class="search-query" placeholder="Search">
+				</form> -->
+				
+			</div><!--/.nav-collapse -->	
+	
+		</div> <!-- /container -->
+		
+	</div> <!-- /navbar-inner -->
+	
+</div> <!-- /navbar -->
+    
+<div class="subnavbar">
+	<div class="subnavbar-inner">
+		<div class="container">
+			<ul class="mainnav">
+				<li>
+					<a href="<?php echo base_url();?>">
+						<i class="icon-home"></i>
+						<span>Beranda</span>
+					</a>	    				
+				</li>
+				<li class="dropdown">					
+					<a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
+						<i class="icon-hdd"></i>
+						<span>Master</span>
+						<b class="caret"></b>
+					</a>
+					<ul class="dropdown-menu">
+						<li><a href="<?php echo base_url();?>app/page_area"><i class="icon-flag"></i> Area</a></li>
+						<li><a href="<?php echo base_url();?>app/page_subarea"><i class="icon-flag"></i> Sub Area</a></li>
+						<li><a href="<?php echo base_url();?>app/page_sistem"><i class="icon-cogs"></i> Sistem</a></li>
+						<li><a href="<?php echo base_url();?>app/page_modul"><i class="icon-cogs"></i> Modul Sistem</a></li>
+						<li><a href="<?php echo base_url();?>app/page_wilayah"><i class="icon-map-marker"></i> Wilayah Kerja</a></li>
+                        <li><a href="<?php echo base_url();?>app/page_user"><i class="icon-user"></i> User</a></li>
+                    </ul>    				
+				</li>
+				<li class="dropdown">					
+					<a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
+						<i class="shortcut-icon icon-bar-chart"></i>
+						<span>Monitoring</span>
+						<b class="caret"></b>
+					</a>
+					<ul class="dropdown-menu">
+                        <li><a href="<?php echo base_url();?>app/page_monitoring"><i class="icon-bar-chart"></i>Input Monitoring</a></li>
+						<li><a href="<?php echo base_url();?>app/page_request"><i class="icon-list"></i>Tracking Monitoring</a></li>
+						<li><a href="<?php echo base_url();?>app/page_ticket"><i class="icon-credit-card"></i> e-Ticket</a></li>
+						<!--li><a href="<?php echo base_url();?>app/page_kinerja"><i class="icon-calendar"></i> e-Kinerja</a></li-->
+                    </ul>   				
+				</li>
+				<li class="dropdown">					
+					<a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
+						<i class="icon-paste"></i>
+						<span>Laporan</span>
+						<b class="caret"></b>
+					</a>
+					<ul class="dropdown-menu">
+                        <!--li><a href="<?php echo base_url();?>app/laprequest"><i class="icon-book"></i> Rekap Request </a></li-->
+                        <li><a href="<?php echo base_url();?>app/lapmonitoring"><i class="icon-bar-chart"></i> Rekap Monitoring  </a></li>
+                        <?php 
+                        $cekjab=$this->session->userdata('jabatan');
+
+					 	if($cekjab =='AD' or $cekjab =='5' or $cekjab =='12' or $cekjab =='9'){
+					 	echo "<li><a href='".base_url()."app/page_rekapkinerja'><i class='icon-book'></i> Rekap Change Request </a></li>";
+					 	}
+
+                        ?>
+						
+                    </ul>    				
+				</li>
+				<!--li>					
+					<a class='single' href="<?php echo base_url();?>assets/help/alur.PNG" >
+						<i class="icon-question-sign"></i>
+						<span>Bantuan</span>
+					</a>  									
+				</li-->
+			</ul>
+
+		</div> <!-- /container -->
+	
+	</div> <!-- /subnavbar-inner -->
+
+</div> <!-- /subnavbar -->
+    
+    
+<div class="main">
+	<div class="main-inner">
+	    <div class="container">
+	    <div class="row">

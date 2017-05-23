@@ -1,0 +1,11 @@
+//ex-editable
+	$.fn.editable.defaults.mode = 'popup';
+    $('.statuser').editable({
+		placement: 'left',
+		showbuttons: false ,
+       	url :baseurl+'app/upstatuser',
+        source: [
+        {value: 0, text: 'Tidak Aktif'},
+        {value: 1, text: 'Aktif'}
+        ]
+        });	

@@ -1,0 +1,2164 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class App extends CI_Controller {
+	public function __construct() {
+    parent::__construct();
+
+    $this->load->model(array('m_data'));
+    $this->load->model(array('m_modal'));
+    $this->load->library(array('session'));   
+    $this->load->database();
+    $this->load->helper(array('url','date'));
+	$this->iduser = $this->session->userdata('iduser');
+	$this->namauser = $this->session->userdata('nama_lengkap');
+	if ($this->session->userdata('isLogin') != TRUE){
+				$text='<div class="alert alert-warning alert-dismissable">
+                   	   <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                  	   Silahkan login terlebih daulu
+                 	   </div>';
+              	$this->session->set_flashdata('cek', $text);
+				redirect('login'); 
+			}
+		 
+    } 
+     
+
+ public function index()
+	{
+		$this->dashboard();
+	}
+	
+ public function master_hapus(){
+		$db= $this->input->post('db');
+		$kolom= $this->input->post('kolom');
+		$isi= $this->input->post('isi');
+		$sql = "delete from $db where $kolom=trim('$isi')";
+        $asg = $this->db->query($sql);  
+        
+		if ($asg){
+            if (!($asg)){
+              $msg = array('pesan'=>'0');
+              echo json_encode($msg);
+               exit();
+            } 
+        } else {
+            $msg = array('pesan'=>'0');
+            echo json_encode($msg);
+            exit();
+        }
+        $msg = array('pesan'=>'1');
+        echo json_encode($msg);
+	 
+ }	
+		
+ public function master_hapus_wil(){
+		$db= $this->input->post('db');
+		$kolom= $this->input->post('kolom');
+		$isi= $this->input->post('isi');
+		$sql = "delete from $db where $kolom=trim('$isi')";
+        $asg = $this->db->query($sql);  
+			if($asg){
+				$sqlc = "delete from ms_wilayah_child where $kolom=trim('$isi')";
+				$asgc = $this->db->query($sqlc);  
+			}
+        
+		if ($asg){
+            if (!($asg)){
+              $msg = array('pesan'=>'0');
+              echo json_encode($msg);
+               exit();
+            } 
+        } else {
+            $msg = array('pesan'=>'0');
+            echo json_encode($msg);
+            exit();
+        }
+        $msg = array('pesan'=>'1');
+        echo json_encode($msg);
+	 
+ }
+
+ public function dashboard() {
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Dashboard',
+	 'page' =>'aplikasi/v_dashboard'
+	 );
+	 $this->load->view('temp/wrapper',$data);  
+ }
+
+ public function page_user() {
+ 	$cekjab=$this->session->userdata('jabatan');
+	$kolom = "id_user";$tabel = "ms_user";
+ 	if($cekjab =='AD' or $cekjab =='5'){
+ 	  $data=array('title'=>'e-Monitoring | MSM Consultant - User',
+	 'prop'=>$this->m_data->getArea(),	
+	 'kab'=>$this->m_data->getKab(),	
+	 'wilayah'=>$this->m_data->getMsWil(),
+	 'user'=> $this->m_data->getAllUser(),
+	 'max'=> $this->m_data->getMax($kolom,$tabel),
+	 'page' =>'aplikasi/v_user'
+	 );
+	 $this->load->view('temp/wrapper',$data);
+
+ 	}else{
+ 	
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Forbidden Page',
+	 'page' =>'temp/forbidden'
+	 );
+	 $this->load->view('temp/wrapper',$data);    
+ 	}
+ } //end page_user
+
+public function insert_user(){
+/* 	echo '<pre>';
+	print_r($_POST);
+	echo '</pre>'; */
+	
+ 			$tb='ms_user';
+ 			$submit='';
+		 	$submit=$this->input->post('save');		 	
+		 	$data =array(
+				'id_user'=>$this->input->post('id_user'),
+				'user_name'=>$this->input->post('username'),
+				'nm_lengkap'=>$this->input->post('fullname'),	
+				'password'=>md5($this->input->post('pass')),	
+				'jabatan'=>$this->input->post('jabatan'),		
+				'kd_wilayah'=>$this->input->post('kode_kab'),			
+				'status'=>1,		
+				'keterangan'=>'',
+				'group'=>$this->input->post('group')	
+				
+			);
+			if(isset($submit)){
+					$a=$this->m_data->InData($tb,$data);
+				
+				 	$text='<div class="alert alert-success alert-dismissible" role="alert">
+				    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <strong>Notif!</strong> Data berhasil disimpan.
+				    </div>';
+					$this->session->set_flashdata('notif', $text);
+					redirect('app/page_user');   
+				
+		           
+		    }else{
+
+		    		$text='<div class="alert alert-warning alert-dismissible" role="alert">
+				    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <strong>Notif!</strong> Data gagal disimpan.
+				    </div>';
+					$this->session->set_flashdata('notif', $text);
+					redirect('app/page_user'); 
+		    }
+ }
+
+ public function chpass(){
+ 	 $data=array('title'=>'e-Monitoring | MSM Consultant - Ganti Password',
+	 'page' =>'aplikasi/v_chpass'
+	 );
+	 $this->load->view('temp/wrapper',$data);  
+ }
+
+ public function a_chpass(){
+ 	
+ 			 $id=$this->iduser;
+			 $submit=$this->input->post('submit');
+			 $passold=md5($this->input->post('passold'));
+			 $passnew=md5($this->input->post('passnew'));
+			 $vpassnew=md5($this->input->post('vpassnew'));
+			 if(isset($submit)){
+			 $cek=$this->m_data->cek_pass($id,$passold);
+			 if($cek->num_rows()== 1){
+					 	$this->m_data->up_pass($id,$passnew);
+						$text='<div class="alert alert-success alert-dismissible" role="alert">
+					    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span></button>
+				        <strong>Notif!</strong> Password telah diubah, akan aktif setelah anda logout
+					    </div>';
+						$this->session->set_flashdata('notif', $text);
+						redirect('app/chpass');
+					}else{
+						$text='<div class="alert alert-warning alert-dismissible" role="alert">
+					    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span></button>
+				        <strong>Notif!</strong> Password lama yang anda masukkan salah..!
+					    </div>';
+						$this->session->set_flashdata('notif', $text);
+						redirect('app/chpass');
+					}
+
+			 }
+			 
+ }//end action chpass
+
+ 	function ambil_kabupaten() {
+        $sql 	= "SELECT id_kabupaten_kota,deskripsi_kabupaten_kota FROM ms_kabupaten ";
+        $query1 = $this->db->query($sql);  
+        $result = array();
+        $ii = 0;
+        foreach($query1->result_array() as $resulte)
+        { 
+           
+            $result[] = array(
+                        'id' => $ii,        
+                        'kode' => $resulte['id_kabupaten_kota'],    
+                        'nama' => $resulte['deskripsi_kabupaten_kota'],  
+                       
+                        );
+                        $ii++;
+        }
+        echo json_encode($result);
+    	   
+	}
+ 
+ public function page_wilayah() {
+	 $id 	= $this->uri->segment(3);
+	 $kode 	= $this->uri->segment(4);
+	 $kolom="kd_wilayah"; $tabel="ms_wilayah";
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Wilayah Kerja',
+	 //'prop'=>$this->m_data->getArea(),	
+	 //'kab'=>$this->m_data->getAreaSub(),	
+	 //'wilayah'=>$this->m_data->getMsWil(),
+	 'wilgrid'=>$this->m_data->getMsWilGrid(),
+	 //'sistem'=>$this->m_data->getSis(),
+	 //'max'=>$this->m_data->getMax($kolom,$tabel),
+	 'page' =>'aplikasi/v_wilayah'
+	 );
+	 $this->load->view('temp/wrapper',$data);  
+ }
+ 
+ public function addwilayah($id) {
+	
+	 $id 	= $this->uri->segment(3);
+	 $kode 	= $this->uri->segment(4);
+	 $kolom="kd_wilayah"; $tabel="ms_wilayah";
+	 $data=array(
+	 'title'=>'e-Monitoring | MSM Consultant - Wilayah Kerja',
+	 'id'=>'INI COBA',
+	 'prop'=>$this->m_data->getArea(),	
+	 'kab'=>$this->m_data->getAreaSub(),	
+	 'wilayah'=>$this->m_data->getMsWil($id),
+	 'wilgrid'=>$this->m_data->getMsWilGrid($id),
+	 'wchild'=>$this->m_data->getWchild($id),
+	 'sistem'=>$this->m_data->getSis(),
+	 'max'=>$this->m_data->getMax($kolom,$tabel),
+	 'page' =>'aplikasi/v_wilayah_form'
+	 ); 
+	 $this->load->view('temp/wrapper',$data); 
+ }
+ 
+ public function insert_cild_sistem(){
+	 $param = $this->input->post();
+	 $this->m_data->InCildSis($param);
+ }
+ 
+ 
+public function insert_wilayah(){
+ 			$tb='ms_wilayah';
+ 			$submit='';
+		 	$submit=$this->input->post('save');		 	
+		 /* 	$data =array(
+				'kd_wilayah'=>htmlspecialchars($this->input->post('kode_wilayah'),ENT_QUOTES),
+				'kd_area'=>htmlspecialchars($this->input->post('kode_prop'),ENT_QUOTES),	
+				'kd_subarea'=>htmlspecialchars($this->input->post('kode_kab'),ENT_QUOTES),	
+				'nm_area'=>'',//htmlspecialchars($this->input->post('nama_wilayah'),ENT_QUOTES),	
+				'nama_pic'=>htmlspecialchars($this->input->post('nama_pic'),ENT_QUOTES),	
+				'jabatan_pic'=>htmlspecialchars($this->input->post('jabatan_pic'),ENT_QUOTES),	
+				'cp_pic'=>htmlspecialchars($this->input->post('cp_pic'),ENT_QUOTES),	
+				'list_system'=>htmlspecialchars($this->input->post('nm_sistem'),ENT_QUOTES),		
+				'keterangan'=>htmlspecialchars($this->input->post('keterangan'),ENT_QUOTES)		
+			); */
+			
+			$param = $this->input->post();
+			if(isset($submit)){
+					//$a=$this->m_data->InData($tb,$data);
+					$this->m_data->InWilayah($param);
+				
+				 	$text='<div class="alert alert-success alert-dismissible" role="alert">
+				    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <strong>Notif!</strong> Data berhasil disimpan.
+				    </div>';
+					$this->session->set_flashdata('notif', $text);
+					redirect('app/page_wilayah');   
+				
+		           
+		    }else{
+
+		    		$text='<div class="alert alert-warning alert-dismissible" role="alert">
+				    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <strong>Notif!</strong> Data gagal disimpan.
+				    </div>';
+					$this->session->set_flashdata('notif', $text);
+					redirect('app/page_wilayah'); 
+		    }
+	
+} 
+
+public function page_area() {
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Area',
+	 'area'=>$this->m_data->getArea(),	
+	 'page' =>'aplikasi/v_area'
+	 );
+	 $this->load->view('temp/wrapper',$data);  
+ }
+ 
+public function page_subarea() {
+	 $kolom="kd_sistem"; $tabel="ms_sistem";
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Sub Area',
+	 'prop'=>$this->m_data->getArea(),	
+	 'subarea'=>$this->m_data->getAreaSub(),	
+	 'page' =>'aplikasi/v_subarea'
+	 );
+	 $this->load->view('temp/wrapper',$data);  
+ }
+ 
+ public function page_sistem() {
+	 $kolom="kd_sistem"; $tabel="ms_sistem";
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Sistem',
+	 'sistem'=>$this->m_data->getSis(),	
+	 'max'=>$this->m_data->getMaxSis($kolom,$tabel),	
+	 'page' =>'aplikasi/v_sistem'
+	 );
+	 $this->load->view('temp/wrapper',$data);  
+ } 
+  
+ public function ALLsistem(){
+	$a=$this->input->post();
+	$this->m_data->all_sistem($a);
+	}
+
+	
+ public function page_modul() {
+	 $kolom="kd_modul"; $tabel="ms_modul";
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Modul',
+	 'sistem'=>$this->m_data->getSis(),	
+	 'prop'=>$this->m_data->getArea(),	
+	 'subarea'=>$this->m_data->getAreaSub(),	
+	 'max'=>$this->m_data->getMaxSis($kolom,$tabel),	
+	 'page' =>'aplikasi/v_modul'
+	 );
+	 $this->load->view('temp/wrapper',$data);  
+ }
+
+	public function dialog_modul(){
+	$a=$this->input->post();
+		$this->m_modal->dialog_modul($a);
+	}
+  
+ public function page_modul_form() {
+	 $kolom="kd_modul"; $tabel="ms_modul";
+	 $kd_wilayah=$this->uri->segment(3);
+	 $kd_area=$this->uri->segment(4);
+	 $kd_subarea=$this->uri->segment(5);
+	 $kd_sistem=$this->uri->segment(6);
+	 $nm_sistem=$this->uri->segment(7);
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Modul',
+	 'modul'=>$this->m_data->getMod($kd_subarea,$kd_sistem),
+	 'kode_wilayah'=>$kd_wilayah,
+	 'kode_area'=>$kd_area,
+	 'kode_subarea'=>$kd_subarea,
+	 'kode_sistem'=>$kd_sistem,
+	 'nm_sistem'=>$nm_sistem,
+	 /* 
+	 'prop'=>$this->m_data->getArea(),	
+	 'subarea'=>$this->m_data->getAreaSub(), */	
+	 'max'=>$this->m_data->getMaxSis($kolom,$tabel),	
+	 'page' =>'aplikasi/v_modul_form'
+	 );
+	 $this->load->view('temp/wrapper',$data);  
+ }
+ 
+public function insert_modul_form(){
+	 
+ 			$tb='ms_modul';
+ 			$submit='';
+		 	$submit=$this->input->post('save');		 	
+		 	$f=$this->input->post('f');	 	
+			$kd_wilayah = $this->input->post('kode_wilayah');
+			$kd_area = $this->input->post('kode_area');
+			$kd_subarea = $this->input->post('kode_subarea');
+			$kd_sistem = $this->input->post('kode_sistem');
+			$nm_sistem = $this->input->post('nama_sistem');
+			$sql=$this->db->query("select count(kd_modul) as maxi from ms_modul where kd_sistem='$kd_sistem' and kd_subarea='$kd_subarea'");
+			$a= $sql->row();
+			if(($a->maxi)=='0'){
+			$id_modul= '0001';		
+			}else{
+			$id_modul= sprintf("%04d",($a->maxi)+1);
+			}
+			$id = $this->input->post('id_modul');
+			$link_modul = $this->input->post('link_modul');
+			$keterangan = $this->input->post('keterangan');
+			//print_r($kd_wilayah."-".$kd_area."-".$kd_subarea); exit;
+		 	$data =array(
+				'kd_modul'=>htmlspecialchars($this->input->post('kode_modul'),ENT_QUOTES),
+				'kd_wilayah'=>htmlspecialchars($this->input->post('kode_wilayah'),ENT_QUOTES),	
+				'kd_area'=>htmlspecialchars($this->input->post('kode_area'),ENT_QUOTES),	
+				'kd_subarea'=>htmlspecialchars($this->input->post('kode_subarea'),ENT_QUOTES),
+				'kd_sistem'=>htmlspecialchars($this->input->post('kode_sistem'),ENT_QUOTES),	
+				'id_modul'=>$this->input->post('kode_subarea').'.'.$this->input->post('kode_modul').'.'.$this->input->post('kode_sistem').'.'.$id_modul,
+				'link_modul'=>htmlspecialchars($this->input->post('link_modul'),ENT_QUOTES),
+				'thn_sistem'=>htmlspecialchars($this->input->post('thn_sistem'),ENT_QUOTES),	
+				'cad'=>'',//htmlspecialchars($this->input->post('detail'),ENT_QUOTES),
+				'keterangan'=>htmlspecialchars($this->input->post('keterangan'),ENT_QUOTES),
+			);
+			if(isset($submit)){
+				switch($f){
+				case 1;
+					$a=$this->m_data->InData($tb,$data);
+				break;
+				case 2;					
+					$a=$this->m_data->UpData($tb,'link_modul',$link_modul,'id_modul',$id);
+				break;
+			}
+					
+				 	$text='<div class="alert alert-success alert-dismissible" role="alert">
+				    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <strong>Notif!</strong> Data berhasil disimpan.
+				    </div>';
+					$this->session->set_flashdata('notif', $text);
+					redirect('app/page_modul_form/'.$kd_wilayah.'/'.$kd_area.'/'.$kd_subarea.'/'.$kd_sistem.'/'.$nm_sistem);   
+		           
+		    }else{
+
+		    		$text='<div class="alert alert-warning alert-dismissible" role="alert">
+				    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <strong>Notif!</strong> Data gagal disimpan.
+				    </div>';
+					$this->session->set_flashdata('notif', $text);
+					redirect('app/page_modul_form/'.$kd_wilayah.'/'.$kd_area.'/'.$kd_subarea.'/'.$kd_sistem.'/'.$nm_sistem); 
+		    }
+	
+}
+ 
+ public function list_sistem(){
+	$area=$this->input->post('area');
+	$subarea=$this->input->post('subarea');
+	$this->m_data->list_sistem($area,$subarea);
+ }
+
+ 
+  public function dialog_area(){
+	$a=$this->input->post();
+		$this->m_modal->dialog_area($a);
+	}
+ 
+  public function insert_area(){
+					/* echo '<pre>';
+					print_r($_POST);
+					echo '</pre>'; */
+ 			$tb='ms_area';
+ 			$submit='';
+		 	$submit=$this->input->post('save');		
+		 	$f=$this->input->post('f');	 	
+		 	$data =array(
+				'kd_area'=>htmlspecialchars($this->input->post('kode_area'),ENT_QUOTES),
+				'nm_area'=>htmlspecialchars($this->input->post('nama_area'),ENT_QUOTES),	
+			);
+			if(isset($submit)){
+			switch($f){
+				case 1;
+					$a=$this->m_data->InData($tb,$data);
+				break;
+				case 2;					
+					$a=$this->m_data->UpData($tb,'nm_area',$this->input->post('nama_area'),'kd_area',$this->input->post('kode_area'));
+				break;
+			}
+				 	$text='<div class="alert alert-success alert-dismissible" role="alert">
+				    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <strong>Notif!</strong> Data berhasil disimpan.
+				    </div>';
+					$this->session->set_flashdata('notif', $text);
+					redirect('app/page_area');   
+				
+		           
+		    }else{
+
+		    		$text='<div class="alert alert-warning alert-dismissible" role="alert">
+				    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <strong>Notif!</strong> Data gagal disimpan.
+				    </div>';
+					$this->session->set_flashdata('notif', $text);
+					redirect('app/page_area'); 
+		    }
+	
+}
+ 
+  public function dialog_subarea(){
+	$a=$this->input->post();
+		$this->m_modal->dialog_subarea($a);
+	}
+ 
+  public function insert_subarea(){
+	  echo '<pre>';
+	  print_r($_POST);
+	  echo '</pre>';
+ 			$tb='ms_area_sub';
+ 			$submit='';
+		 	$submit=$this->input->post('save');		
+		 	$f=$this->input->post('f');	 	
+		 	$data =array(
+				'kd_area'=>htmlspecialchars($this->input->post('kode_area'),ENT_QUOTES),
+				'kd_subarea'=>htmlspecialchars($this->input->post('kode_subarea'),ENT_QUOTES),	
+				'nm_subarea'=>htmlspecialchars($this->input->post('nama_subarea'),ENT_QUOTES),	
+
+			);
+			if(isset($submit)){
+			switch($f){
+				case 1;
+					$a=$this->m_data->InData($tb,$data);
+				break;
+				case 2;					
+					$a=$this->m_data->UpData($tb,'nm_subarea',$this->input->post('nama_subarea'),'kd_subarea',$this->input->post('kode_subarea'));
+				break;
+			}
+				 	$text='<div class="alert alert-success alert-dismissible" role="alert">
+				    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <strong>Notif!</strong> Data berhasil disimpan.
+				    </div>';
+					$this->session->set_flashdata('notif', $text);
+					redirect('app/page_subarea');   
+				
+		           
+		    }else{
+
+		    		$text='<div class="alert alert-warning alert-dismissible" role="alert">
+				    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <strong>Notif!</strong> Data gagal disimpan.
+				    </div>';
+					$this->session->set_flashdata('notif', $text);
+					redirect('app/page_subarea'); 
+		    }
+	
+} 
+   public function dialog_sistem(){
+	$a=$this->input->post();
+		$this->m_modal->dialog_sistem($a);
+	}
+ public function insert_sistem(){
+	 
+ 			$tb='ms_sistem';
+ 			$submit='';
+		 	$submit=$this->input->post('save');		 	
+		 	$f=$this->input->post('f');	 	
+		 	$data =array(
+				'kd_sistem'=>htmlspecialchars($this->input->post('kode_sistem'),ENT_QUOTES),
+				'nm_sistem'=>htmlspecialchars($this->input->post('nama_sistem'),ENT_QUOTES),	
+				'detail'=>htmlspecialchars($this->input->post('detail'),ENT_QUOTES),	
+			);
+			if(isset($submit)){
+			switch($f){
+				case 1;
+					$a=$this->m_data->InData($tb,$data);
+				break;
+				case 2;					
+					$a=$this->m_data->UpData($tb,'nm_sistem',$this->input->post('nama_sistem'),'kd_sistem',$this->input->post('kode_sistem'));
+				break;
+			}
+				
+				 	$text='<div class="alert alert-success alert-dismissible" role="alert">
+				    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <strong>Notif!</strong> Data berhasil disimpan.
+				    </div>';
+					$this->session->set_flashdata('notif', $text);
+					redirect('app/page_sistem');   
+				
+		           
+		    }else{
+
+		    		$text='<div class="alert alert-warning alert-dismissible" role="alert">
+				    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <strong>Notif!</strong> Data gagal disimpan.
+				    </div>';
+					$this->session->set_flashdata('notif', $text);
+					redirect('app/page_sistem'); 
+		    }
+	
+}
+ 
+ public function page_monitoring() {
+	 $kolom="kd_monitor";$tabel="e_monitor";
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Monitoring & Data',
+	 'prop'=>$this->m_data->getArea(),
+	 'sistem'=>$this->m_data->getSis(),
+	 'max'=>$this->m_data->getMaxSis($kolom,$tabel),
+	 'page' =>'aplikasi/v_monitoring'
+	 );
+	 $this->load->view('temp/wrapper',$data);  
+ }
+
+
+  public function insert_monitoring(){
+	 // echo '<pre>';print_r($_POST); echo'</pre>';
+			$tb='e_monitor';
+ 			$submit='';
+		 	$submit=$this->input->post('save');		 
+ 			$username=$this->session->userdata('username');	
+ 			$now= date('Y-m-d H:i:s');	
+		 	$data =array(
+				'kd_monitor'=>htmlspecialchars($this->input->post('kode_monitor'),ENT_QUOTES),
+				'kd_wilayah'=>substr($this->input->post('kode_sistem'),0,1),	
+				'kd_area'=>htmlspecialchars($this->input->post('kode_prop'),ENT_QUOTES),
+				'kd_subarea'=>htmlspecialchars($this->input->post('kode_kab'),ENT_QUOTES),
+				'kd_sistem'=>substr($this->input->post('kode_sistem'),2,strlen($this->input->post('kode_sistem'))),
+				'bulan'=>htmlspecialchars($this->input->post('bulan'),ENT_QUOTES),
+				'tahun'=>htmlspecialchars($this->input->post('tahun'),ENT_QUOTES),
+				'tgl_terima'=>htmlspecialchars($this->input->post('tgl_terima'),ENT_QUOTES),
+				'via_pengiriman'=>htmlspecialchars($this->input->post('radio'),ENT_QUOTES),
+				'jenis_data'=>htmlspecialchars($this->input->post('jns_data'),ENT_QUOTES),
+				'kapasitas'=>htmlspecialchars($this->input->post('kapasitas'),ENT_QUOTES),
+				'status'=>0,
+				'keterangan'=>htmlspecialchars($this->input->post('keterangan'),ENT_QUOTES),
+				'username'=>$username,
+				'input_time'=>$now,
+			);
+			if(isset($submit)){
+					$a=$this->m_data->InData($tb,$data);
+				
+				 	$text='<div class="alert alert-success alert-dismissible" role="alert">
+				    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <strong>Notif!</strong> Data berhasil disimpan.
+				    </div>';
+					$this->session->set_flashdata('notif', $text);
+					redirect('app/page_monitoring');   
+				
+		           
+		    }else{
+
+		    		$text='<div class="alert alert-warning alert-dismissible" role="alert">
+				    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <strong>Notif!</strong> Data gagal disimpan.
+				    </div>';
+					$this->session->set_flashdata('notif', $text);
+					redirect('app/page_monitoring'); 
+		    }
+	
+	}
+ 
+ public function page_request() {
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Request',
+	 //'req'=>$this->callta(),
+	 'page' =>'aplikasi/v_request'
+	 );
+	 $this->load->view('temp/wrapper',$data);  
+ }	
+
+public function req(){
+	$this->m_data->request();
+}
+
+ public function page_tracking_monitor(){
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Request',
+	 'page' =>'aplikasi/v_tracking_monitor'
+	 );
+	 $this->load->view('temp/wrapper',$data);  
+ } 
+ public function track(){
+	$this->m_data->track();
+}
+
+ public function uptrack() {
+			$date	=date('Y-m-d H:i:s');
+			$kode	=$this->input->post('value');
+			$area	=$this->input->post('subarea');
+			$sistem	=$this->input->post('sistem');
+			$this->m_data->uptrack($kode,$area,$sistem);
+}
+
+ public function page_ticket() {
+ 	 $kd=$this->session->userdata('kd_wil');
+ 	 $wilayah=$this->m_data->getWil($kd);
+ 	 $ls=$wilayah['list_system'];
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Ticket',
+	 'wil'=> $wilayah,
+	 'sys'=> $this->m_data->getSysArr($ls),
+	 'page' =>'aplikasi/v_ticket'
+	 );
+	 $this->load->view('temp/wrapper',$data);  
+ }	
+
+ public function insert_ticket(){
+
+ 			$tb='ms_req';
+ 			$id=$this->session->userdata('iduser');
+ 			$submit='';
+		 	$submit=$this->input->post('save');		
+		 	$kds=$this->input->post('sistem');
+			$kdw=$this->input->post('kdwil');
+			$lm=explode('-', $this->input->post('modul'));
+
+			$idmenu=$lm[0];
+			$linkmenu=$lm[1];
+			$keymenu=$lm[2];		
+			$max=$this->m_data->maxid();
+			$maxid=$max['id']+1;
+
+
+		 	
+
+			if(isset($submit)){
+			$filename = $_FILES["userfile"]["name"];
+					$file_basename = substr($filename, 0, strripos($filename, '.')); // get file extention
+					$file_ext = substr($filename, strripos($filename, '.')); // get file name
+					// Rename file
+			   if($filename ==''){
+			   	$newfilename='';
+			   }else{
+					$newfilename = $kdw."_".$kds."_".$maxid.$file_ext;
+			   }
+			   $file =  array(
+                  'file_name'       => $newfilename,
+                  'upload_path'     => "./screenshoot",
+                  'allowed_types'   => "|jpg|jpeg",
+                  'overwrite'       => TRUE,
+                  'max_size'        => "5242880",  // Can be set to particular file size
+                  'max_height'      => "2000",
+                  'max_width'       => "2000"  
+                );
+			   $data =array(
+					'user_name'=>$id,
+					'kd_system'=>$this->input->post('sistem'),
+					'kd_wilayah'=>$this->input->post('kdwil'),
+					'tgl_req'=>$this->input->post('tglreq'),
+					'jns_req'=>$this->input->post('radio'),	
+					'ket_fitur'=>$this->input->post('ketfitur'),		
+					//'tgl_deadline'=>$this->input->post('deadline'),		
+					'link_modul'=>$linkmenu,
+					'id_menu'=>$idmenu,
+					'key_menu'=>$keymenu,
+					'uraian	'=>$this->input->post('subs').$this->input->post('uraian'),
+					'prioritas'=>$this->input->post('prioritas'),
+					'image'=>$newfilename
+					);
+
+			   if($filename ==''){
+
+			   		 	$a=$this->m_data->InData($tb,$data);
+
+						$text='<div class="alert alert-success alert-dismissible" role="alert">
+					    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				        <strong>Notif!</strong> Data berhasil diinput.
+					    </div>';
+						$this->session->set_flashdata('notif', $text);
+						redirect('app/page_ticket','refresh');
+			   }else{
+					   	$this->load->library('upload', $file);
+						if($this->upload->do_upload())
+						{
+						    $a=$this->m_data->InData($tb,$data);
+							
+							$text='<div class="alert alert-success alert-dismissible" role="alert">
+						    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					        <strong>Notif!</strong> Data berhasil diinput.
+						    </div>';
+							$this->session->set_flashdata('notif', $text);
+							redirect('app/page_ticket','refresh');	
+						}
+						else
+						{
+							$t= $this->upload->display_errors();
+							$text='<div class="alert alert-warning alert-dismissible" role="alert">
+							    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						        <strong>Notif!</strong>'.$t.'
+							    </div>';
+							$this->session->set_flashdata('notif', $text);
+							redirect('app/page_ticket','refresh');			           
+				   		 }
+
+			   }
+			   
+ 			}//end submit
+}	
+
+
+
+ public function callta() {
+        $sql = $this->db->query("SELECT user_name as value, nm_lengkap as text from ms_user where jabatan in('2','1')");
+        // $query1 = $this->db->query($sql);
+
+        $result = $sql->result();
+        echo json_encode($result);
+      
+ 	}//end callta
+
+ public function upstatuser() {
+		 	
+			$id=$this->input->post('pk');
+			$status=$this->input->post('value');
+			$this->m_data->upstatuser($id,$status);
+			
+ 	}//end upstat User
+
+ public function upstatreq() {
+		 	
+			$id=$this->input->post('pk');
+			$status=$this->input->post('value');
+			$date=date('Y-m-d H:i:s');
+			$this->m_data->upstatreq($id,$status,$date);
+			
+ 	}//end upstat req
+
+ public function upstatver() {
+		 	$pk=$this->input->post('pk');
+			$exp=explode('_',$pk );
+			$id=$exp[0];
+			$status=$this->input->post('value');
+			$idmenu=$exp[1];
+			$jns=$exp[2];
+			$sys=$exp[3];
+			$wil=$exp[4];
+			$date=date('Y-m-d H:i:s');
+			$user=$this->iduser;
+			$this->m_data->upstatver($id,$status,$date,$user);
+			$this->m_data->lastupmenu($date,$idmenu,$wil,$sys);
+			$hs=$this->m_data->getreq($id);
+			
+
+			
+			if($jns=='2'){
+				$data=array(
+						'id_modul'=>$hs['id_menu'],
+						'kd_wilayah'=>$hs['kd_wilayah'],
+						'kd_system'=>$hs['kd_system'],
+						'fitur'=>$hs['ket_fitur'],
+						'tgl_update'=>$date
+						);
+				$this->m_data->addfitur($data);
+
+				
+			}
+
+			
+ 	}//end upstat ver
+
+ public function log(){
+ 		// $rev=$this->input->post('id');
+ 		 $rev=$_GET['id'];
+ 		 $exp=explode('_',$rev );
+ 		 $id =$exp[0];
+ 		 $wil =$exp[1];
+ 		 $sys =$exp[2];
+ 	  	 $sql1 = $this->db->query("SELECT * FROM ms_fitur WHERE id_modul= '$id' AND  kd_wilayah='$wil' AND  kd_system='$sys'");
+ 	   	 $sql2 = $this->db->query("SELECT * FROM ms_req WHERE id_menu= '$id' AND kd_wilayah='$wil' AND kd_system='$sys' and statusver='2' AND jns_req IN('1','2') ");
+
+ 	   	 	$sh ="
+ 	   	 		<div class='vlog'>
+ 	   	 		<legend><button id='addfitur' onclick='caddfit()' class='btn btn-default btn-xs' >Tambah fitur 
+ 	   	 		<span>&nbsp;<i class='fa fa-angle-double-right'></i>&nbsp;</span></button></legend>
+ 	   	 		<h4 class='bg-success'># Log Fitur</h4>
+ 	   	 		<div id='' style='overflow-y: scroll; height:180px;'>";
+ 	   		$sh .= "
+         		<ul>";
+			        foreach($sql1->result_array() as $fitur)
+			        { 
+			          
+			           $sh .= "<li>".$fitur['fitur']." 
+			           		   <br>( Last Update : ".$fitur['tgl_update'].") </li></br>";
+			           
+			        }
+       		$sh .= "</ul></div>";
+ 	   	 	$sh .=" <h4 class='bg-danger'># Log Request</h4>
+ 	   	 		<div id='' style='overflow-y: scroll; height:180px;'>";
+ 	   		$sh .= "
+         		<ul>";
+			        foreach($sql2->result_array() as $log)
+			        { 
+			          
+			           $sh .= "<li>
+          		  		Tanggal Request : ".$log['tgl_req']."
+	           		    <br> <b>Permasalahan</b> : ".$log['uraian']." 
+	           		    <br> <b>Solusi</b> : ".$log['solusi']." 
+	           		    <br>( Last Update :".$log['tgl_verifikasi'].") 
+	           		    </li></br>";
+			           
+			        }
+       		$sh .= "</ul></div>
+       				</div>";
+       		$sh .="
+       			   <div class='addlog'>
+       			    <legend><button id='vlog' onclick='cvlog()' class='btn btn-default btn-xs' >
+       			    <span>&nbsp;<i class='fa fa-angle-double-left'></i>&nbsp;</span>
+       			     View log</button></legend>
+       				<form  id='addfit_form' >
+       				<input type='hidden' name='id' value='$id'>
+       				<input type='hidden' name='kdw' value='$wil'>
+       				<input type='hidden' name='kds' value='$sys'>
+       				Keterangan Fitur :
+       			   <textarea class='span6 form-control' rows='3' id='fitur' name='fitur' ></textarea>
+       			   <br>
+       			   <div class='form-actions'>
+       			   <button id='btnaddfitur' onclick='btnaddfit()' class='btn btn-primary btn-xs' >
+       			   <span>&nbsp;<i class='fa fa-pencil'></i>&nbsp;</span>Simpan</button>
+       			   </div>
+       			   </form>
+       			
+       			   </div>
+       				";
+
+ 	   	 	
+
+        
+        echo $sh;
+ }//end view fitur
+
+ public function a_addfitur(){
+
+	$data =array(
+		'id_modul'=>$_POST['id'],
+		'kd_wilayah'=>$_POST['kdw'],
+		'kd_system'=>$_POST['kds'],
+		'fitur'=>$_POST['fitur'],
+		'tgl_update'=>date('Y-m-d')
+
+		);
+
+	$run=$this->db->insert('ms_fitur',$data);
+
+	if($run){
+		echo "<div class='alert alert-success alert-dismissable'>
+              <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
+              Data berhasil tersimpan.
+              </div>";
+	}else{
+		echo "<div class='alert alert-warning alert-dismissable'>
+              <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
+              Data gagal tersimpan.
+              </div>";
+	}
+}//end add fitur
+
+
+
+ public function vdetail(){
+ 	$fitur="";
+ 	$note="";
+ 	$id=$_GET['id'];
+ 	$query=$this->db->query("
+         SELECT e.nm_lengkap,a.id, a.link_modul AS modul,DATE_FORMAT(a.tgl_req,'%d %b %Y %T') AS tglreq, a.uraian, a.prioritas, a.ta, 
+          DATE_FORMAT(a.tgl_selesai,'%d %b %Y %T') AS tgl_selesai, a.status, a.tgl_verifikasi, a.statusver, a.user_verifikasi,
+          a.image, a.jns_req, a.ket_fitur,a.kd_wilayah, a.`kd_system`,a.solusi,
+          IF(a.ta='0','Kosong',d.nm_lengkap) AS nama, a.id_menu,b.nm_system AS nmsys,
+          c.nm_wilayah AS nmwil FROM ms_req a INNER JOIN ms_system b ON a.kd_system = b.kd_system
+          INNER JOIN ms_wilayah c ON a.kd_wilayah = c.kd_wilayah 
+          LEFT JOIN ms_user d ON d.user_name=a.ta
+          LEFT JOIN ms_user e ON e.user_name=a.user_name WHERE a.id ='$id' ");
+ 		$row=$query->row_array();
+ 		if($row['jns_req']=='1'){
+ 			$jns= 'Permasalahan';
+ 			$note="<tr><td style='width:30%'>Catatan</td><td>:</td>
+				<td>".$row['solusi']."</td></tr>";
+ 		}
+ 		if($row['jns_req']=='2'){
+ 			$jns= 'Update Fitur';
+ 			$fitur="<tr><td style='width:30%' valign='top'>Keterangan Fitur</td><td valign='top'>:</td>
+				<td>".$row['ket_fitur']."</td></tr>" ;	
+		}
+ 		if($row['jns_req']=='3'){
+ 			$jns ='update Modul';
+ 		}
+ 		if($row['status']=='1'){
+ 			$status ='Belum';
+ 		}
+ 		if($row['status']=='2'){
+ 			$status ='Sudah';
+ 		}
+ 	$vdet ="
+ 			<legend> Detail request nomor : ".$id."</legend>
+ 			<table style='width:100%;border:none'>
+ 				<tr><td style='width:30%'>User Name</td><td>:</td>
+				<td>".$row['nm_lengkap']."</td></tr>
+				<tr><td style='width:30%'>Tanggal request</td><td>:</td>
+				<td>".$row['tglreq']."</td></tr>
+				<tr><td style='width:30%'>Jenis request</td><td>:</td>
+				<td>".$jns."</td></tr>
+				<tr><td style='width:30%'>Wilayah</td><td>:</td>
+				<td>".$row['kd_wilayah']." / ".$row['nmwil']."</td></tr>
+				<tr><td style='width:30%'>System</td><td>:</td>
+				<td>".$row['kd_system']." / ".$row['nmsys']."</td></tr>
+				<tr><td style='width:30%'>ID /Link  Menu</td><td>:</td>
+				<td>".$row['id_menu']." ( ".$row['modul']." )</td></tr>
+				<tr><td style='width:30%'>Prioritas</td><td>:</td>
+				<td>".$row['prioritas']."</td></tr>
+				<tr><td style='width:30%'>Status</td><td>:</td>
+				<td>".$status."</td></tr>
+				<tr><td style='width:30%'>Tenaga Ahli</td><td>:</td>
+				<td>".$row['nama']."</td></tr>
+				<tr><td style='width:30%'>Tanggal Selesai</td><td>:</td>
+				<td>".$row['tgl_selesai']."</td></tr>
+				".$fitur."
+				<tr><td style='width:30%' valign='top'>Uraian</td><td valign='top'>:</td>
+				<td>".$row['uraian']."</td></tr>
+				".$note."
+			</table>";
+			
+
+
+ 	echo $vdet;
+ }
+
+
+ public function upta() {
+		 	
+			$id=$this->input->post('pk');
+			$user=$this->input->post('value');
+			$this->m_data->upta($id,$user);
+			
+ 	}//end upstat ta
+
+ public function logout() {
+               $this->session->sess_destroy();
+               redirect('monitor');
+  } //end logout
+
+
+  public function list_modul(){
+
+  	if(isset($_POST['kdsys']))
+		{
+		$kdsys=$_POST['kdsys'];
+
+			$op ="<option selected value=''>Pilih Menu/Modul</option>";
+		    $kdw=$this->session->userdata('kd_wil');
+
+			$query = mysql_query("SELECT * FROM ms_menu where kd_sistem='$kdsys' and kd_wilayah='$kdw' and url <>'' order by id ");
+			// echo"<option selected value=''>Pilih Menu/Modul</option>";
+			while($d = mysql_fetch_array($query)){
+				if($d['url']!=''){
+					$s=' | URL :  ';
+				}
+		    	
+		        $op .="<option value=".$d['id']."-".$d['url']."-".$d['no'].">".ucwords(strtolower($d['title'])).$s.$d['url']."</option>";
+		   
+		    }
+
+		    echo $op;
+
+		}
+		else{
+			echo '<option>tes</option>';
+		}
+  	
+	
+	}//end list modul
+  public function list_wilayah(){
+
+  	if(isset($_POST['prop']))
+		{
+		$prop=$_POST['prop'];
+
+			$op ="<option selected value=''>--Pilih Kab/Kota--</option>";
+			$query = $this->db->query("SELECT * FROM ms_kabupaten where id_prop='$prop' order by id_kabupaten_kota ");
+			foreach($query->result_array() as $d){
+		        $op .="<option value=".$d['id_kabupaten_kota'].">".$d['id_kabupaten_kota']." | ".ucwords(strtolower($d['deskripsi_kabupaten_kota']))."</option>";
+		   
+		    }
+
+		    echo $op;
+
+		}
+		else{
+			echo '<option>kosong</option>';
+		}
+	}
+	
+	public function list_area(){
+
+  	if(isset($_POST['kd_area']))
+		{
+		$kd_area=$_POST['kd_area'];
+
+			$op ="<option selected value=''>--Pilih Sub Area--</option>";
+			$query = $this->db->query("SELECT * FROM ms_area_sub where kd_area='$kd_area' order by kd_subarea ");
+			foreach($query->result_array() as $d){
+		        $op .="<option value=".$d['kd_subarea'].">".$d['kd_subarea']." | ".ucwords(strtolower($d['nm_subarea']))."</option>";
+		   
+		    }
+
+		    echo $op;
+
+		}
+		else{
+			echo '<option>kosong</option>';
+		}
+	}
+	
+	public function list_sistem_monitor(){
+  	if(isset($_POST['kd_area']))
+		{
+		$kd_area=$_POST['kd_area'];
+		$kd_subarea=$_POST['kd_subarea'];
+			$op ="<option selected value=''>--Pilih Sistem--</option>";
+			$query = $this->db->query("SELECT * FROM ms_wilayah_child where kd_area='$kd_area' and kd_subarea='$kd_subarea' order by kd_sistem ");
+			foreach($query->result_array() as $d){
+		        $op .="<option value=".$d['kd_wilayah'].'#'.$d['kd_sistem'].">".$d['kd_sistem']." | ".ucwords(strtolower($d['nm_sistem']))."</option>";
+		   
+		    }
+
+		    echo $op;
+
+		}
+		else{
+			echo '<option>kosong</option>';
+		}
+	}
+	
+  public function list_system(){
+
+  		$kd=$_POST['cwil'];
+  		$row =$this->m_data->getWil($kd);
+  		$ls=$row['list_system'];
+	 if (isset($_POST['cwil'])){
+	 	
+	 	$op ="<option selected value=''>Pilih System</option>";
+		$query = mysql_query("SELECT * FROM ms_system where kd_system IN ($ls) ");
+		
+		while($d = mysql_fetch_array($query)){
+			$op .="<option value=".$d['kd_system'].">".ucwords(strtolower($d['nm_system']))."</option>";
+			
+		}
+			 echo $op;
+	}
+	
+	}//end list modul
+
+	public function vdatmon(){
+	$kdwil=$this->input->post('kdwil');
+	$kdsys=$this->input->post('kdsys');
+	$this->m_data->data_monitoring($kdwil,$kdsys);
+
+	}
+
+
+
+
+public function solusi(){
+	$id=$_GET['id'];
+	$jns=$_GET['jns'];
+	$query=$this->db->query("SELECT a.solusi, a.ket_fitur, a.kd_wilayah,
+	a.kd_system, c.nm_wilayah, b.nm_system FROM ms_req a INNER JOIN ms_system b ON b.kd_system=a.kd_system
+	INNER JOIN ms_wilayah c ON c.kd_wilayah =a.kd_wilayah WHERE id ='$id'");
+	$row=$query->row_array();
+	$kdsys=$row['kd_system'];
+	// $query2=$this->db->query("SELECT id, title from ms_menu where kd_sistem ='$kdsys'");
+ 
+
+	// 	$menu  = "<option selected value=''>Pilih Menu</option>";
+	// 	$menu .= while($d = mysql_fetch_array($query2)){
+	// 	$menu .= "<option value=".$d['id'].">".ucwords(strtolower($d['title']))."</option>";
+	// 	$menu .= }
+
+	          
+
+	$popup ="<div class='col-sm-12'>
+	<form  id='sol_form' class='form-horizontal'>";
+
+	if($jns=='1'){
+	$popup .="
+			<legend> Solusi Permasalahan </legend>
+			<input type='hidden' name='id' value='$id'>
+			<input type='hidden' name='act' value='1'>
+			<textarea class='span5 form-control' rows='4' id='solusi' name='solusi' >".$row['solusi']."</textarea>
+			<br>";
+	}//end jns 1
+
+	if($jns=='2'){
+	$popup .="
+			<legend> Edit keterangan fitur</legend>
+			<input type='hidden' name='id' value='$id'>
+			<input type='hidden' name='act' value='2'>
+			<textarea class='span5 form-control' rows='3' id='fitur' name='fitur' >".$row['ket_fitur']."</textarea>
+			<br>";
+	}//end jns 2
+
+	if($jns=='3'){
+	$popup .="
+			<legend> Lengkapi Data Modul </legend>
+			<input type='hidden' name='id' value='$id'>
+			<input type='hidden' name='nmwil' value='".$row['kd_wilayah']."'>
+			<input type='hidden' name='nmsys' value='".$row['kd_system']."'>
+			<input type='hidden' name='act' value='3'>
+			<table style='width;100%;border:none'>
+				<tr>
+				<td style='width:30%'>Wilayah</td>
+				<td>:</td>
+				<td>".$row['kd_wilayah']." | ".$row['nm_wilayah']."</td>
+				</tr>
+				<tr>
+				<td style='width:30%'>System</td>
+				<td>:</td>
+				<td>".$row['kd_system']." | ".$row['nm_system']."</td>
+				</tr>
+				<tr>
+				<td style='width:30%'>Parent Menu</td>
+				<td>:</td>
+				<td>
+				<select class='fancy select' name='pm' id='pm' >";
+
+				$popup .=
+								$query2 = mysql_query("SELECT id, title from ms_menu where kd_sistem ='$kdsys'");
+				$popup .= "<option selected value=''>Pilih Parent Menu</option>";
+								while($d = mysql_fetch_array($query2)){
+				$popup .= "<option value=".$d['id'].">".ucwords(strtolower($d['title']))."</option>";
+								}"";
+				$popup .=
+				"</select>
+				</td>
+				</tr>
+				<tr>
+				<td style='width:30%'>URL Menu</td>
+				<td>:</td>
+				<td><input type='ext' class='span3 form-control' id='url_menu'  name='url_menu' required=''></td>
+				</tr>
+				<tr>
+				<td style='width:30%'>Nama Menu</td>
+				<td>:</td>
+				<td><input type='ext' class='span3 form-control' id='nm_menu'  name='nm_menu' required=''></td>
+				</tr>
+			</table>";
+				
+	}//end jns 3
+
+	$popup .="
+			<div class='form-actions'>
+			<button onclick='submitsol()' class='btn btn-xs  btn-primary' >
+			<span>&nbsp;<i class='fa fa-pencil'></i>&nbsp;</span>
+			Simpan</button>
+			<button type='reset' class='btn btn-xs  btn-danger' >
+			<span>&nbsp;<i class='fa fa-refresh'></i>&nbsp;</span>
+			Reset</button>
+			</div>
+			</form>
+			<div id='notif'></div>
+			</div>
+			";
+
+	echo $popup;	
+	}//end solusi
+
+public function act_solusi(){
+	$id=$_POST['id'];
+
+	if($_POST['act']=='1'){
+		$solusi=$_POST['solusi'];
+		$run=$this->db->query("Update ms_req set solusi='$solusi' where id='$id'");
+
+	}
+	if($_POST['act']=='2'){
+		$fitur=$_POST['fitur'];
+		$run=$this->db->query("Update ms_req set ket_fitur='$fitur' where id='$id'");
+
+	}
+	if($_POST['act']=='3'){
+			$pm=$_POST['pm'];
+			$level='';
+			$kdwil=$_POST['nmwil'];
+			$kdsys=$_POST['nmsys'];
+				$nol = array(1=>"0","");
+				$thn=date('Y');
+				
+				$query = $this->db->query("select id  from ms_menu where mid(id,1,3) = '$pm'
+					AND kd_sistem = '$kdsys' AND kd_wilayah ='$kdwil' order by id desc");
+				$query2 = $this->db->query("select level  from ms_menu where mid(id,1,3) = '$pm'
+					AND kd_sistem = '$kdsys' AND kd_wilayah ='$kdwil' ");
+				$cek = $query->num_rows();
+				 if($cek > 0) {
+			 	$row = $query->row_array();	
+			    $max = substr($row['id'],3,strlen($row['id'])) + 1;
+			    $newid =substr($row['id'],0,3).$nol[strlen($max)].$max;
+			    $level=$row['level']+1;
+				
+			    } else { 
+				$newid=$pm."01";
+				}
+				$rowx = $query2->row_array();	
+				$level=$rowx['level']+1;
+		$data = array(
+				'kd_sistem'=>	$_POST['nmsys'],
+				'kd_wilayah'=>	$_POST['nmwil'],
+				'parent_id' => $pm,
+				'page_id' => $pm,
+				'id'=>		$newid,
+				'level'=>	$level,
+				'url'=>		$_POST['url_menu'],
+				'title'=>	$_POST['nm_menu']
+			);
+		$run= $this->db->insert('ms_menu',$data);
+		//$run=$this->db->query("insert ms_menu set ket_fitur='$fitur' where id='$id'");
+
+	}
+
+	if($run){
+		echo "<div class='alert alert-success alert-dismissable'>
+              <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
+              Data berhasil tersimpan.
+              </div>";
+	}else{
+		echo "<div class='alert alert-warning alert-dismissable'>
+              <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
+              Data gagal tersimpan.
+              </div>";
+	}
+}//end act_solusi
+
+
+//chart function
+public function chart1(){
+	/* $wil='';
+	$done='';
+	$ongoing=''; */
+
+		//$where = "WHERE list_system LIKE '%sys%'";
+	  /*   $query = $this->db->query("
+	    	SELECT a.kd_wilayah, a.alias AS wilayah,  
+			(SELECT COUNT(id) FROM ms_req b WHERE b.kd_wilayah =a.kd_wilayah AND b.statusver = '2') AS selesai,
+			(SELECT COUNT(id) FROM ms_req b WHERE b.kd_wilayah =a.kd_wilayah AND b.statusver <> '2') AS ongoing
+			FROM  ms_wilayah a 
+			ORDER BY kd_wilayah"); */
+		  $query = $this->db->query("
+	    	SELECT '' as kd_wilayah, '' as alias AS wilayah,'' AS selesai,'' AS ongoing
+			FROM ms_wilayah ");	
+// $result = $query->result();
+
+	    	$main_array = array();
+
+	    	$data_wilayah = array();
+	    	foreach($query->result_array() as $resulte){
+		    	/*$data[] = array(
+		    		'wilayah' => $resulte['wilayah']
+	    		);*/
+				array_push($data_wilayah, $resulte['wilayah']);
+	    	}
+
+	    	array_push($main_array, $data_wilayah);
+
+
+	    	$data_selesai = array();
+	    	foreach($query->result_array() as $resulte){
+		    	/*$data[] = array(
+		    		'wilayah' => $resulte['wilayah']
+	    		);*/
+				array_push($data_selesai, $resulte['selesai']);
+	    	}
+
+	    	array_push($main_array, $data_selesai);
+
+
+	    	$data_ongoing = array();
+	    	foreach($query->result_array() as $resulte){
+		    	/*$data[] = array(
+		    		'wilayah' => $resulte['wilayah']
+	    		);*/
+				array_push($data_ongoing, $resulte['ongoing']);
+	    	}
+
+	    	array_push($main_array, $data_ongoing);
+
+
+
+	    	/*echo "<pre>";
+	    	print_r($main_array);
+	    	echo "</pre>";*/
+
+
+        echo json_encode($main_array);
+	   
+    
+    
+
+}//end chart1
+
+public function chart2(){
+	    $query = $this->db->query("
+	    	SELECT DISTINCT  b.nm_wilayah AS label,
+			(SELECT COUNT(b.status) FROM ms_req b WHERE b.kd_wilayah =a.kd_wilayah) AS value
+			FROM ms_req a INNER JOIN ms_wilayah b WHERE a.kd_wilayah= b.kd_wilayah GROUP BY a.kd_wilayah
+				    	");
+        // $query1 = $this->db->query($sql);
+
+        $result = $query->result();
+        echo json_encode($result);
+
+}//end chart2
+
+
+//laporan
+ public function lapmonitoring() {
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Laporan Monitoring',
+	 'page' =>'aplikasi/v_lapmonitoring',
+	 'wilayah'=>$this->m_data->getWilArr()
+	 );
+	 $this->load->view('temp/wrapper',$data);  
+ }
+
+ 	public function vlapmon(){
+	$kdwil=$this->input->post('kdwil');
+	$kdsys=$this->input->post('kdsys');
+	$this->m_data->lapmon($kdwil,$kdsys);
+
+	}
+
+ public function laprequest() {
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Laporan Request',
+	 'page' =>'aplikasi/v_laprequest',
+	 'wilayah'=>$this->m_data->getWilArr()
+	 );
+	 $this->load->view('temp/wrapper',$data);  
+ }
+
+ 	public function vlapreq(){
+ 	$kdwil='';
+ 	$bulan='';
+	$kdwil=$this->input->post('kdwil');
+	$bulan=$this->input->post('bulan');
+	$this->m_data->lap_request($kdwil,$bulan);
+
+	}
+
+ public function pdfreq() {
+	$this->load->library('pdfgenerator');
+	$kdwil='';
+ 	$bulan='';
+	$kdwil=$this->uri->segment(3);
+	$bulan=$this->uri->segment(4);
+
+	$query=$this->db->query("SELECT a.id, a.id_menu, a.link_modul AS modul,DATE_FORMAT(a.tgl_req,'%d %b %Y %T') AS tglreq, a.uraian, a.prioritas, a.ta, 
+          DATE_FORMAT(a.tgl_selesai,'%d %b %Y %T') AS tgl_selesai, IF(a.tgl_selesai='','-',TIMEDIFF(a.tgl_selesai,a.tgl_req)) AS selisih, a.status, a.tgl_verifikasi, a.statusver, a.user_verifikasi,a.image, a.jns_req, a.ket_fitur,
+          a.kd_wilayah, a.uraian, a.kd_system, f.title,
+          IF(a.ta='0','-',d.nm_lengkap) AS namata,  IF(a.statusver='1','-',e.nm_lengkap) AS namaver, a.id_menu,b.nm_system AS nmsys,
+          c.nm_wilayah AS nmwil FROM ms_req a INNER JOIN ms_system b ON a.kd_system = b.kd_system
+          INNER JOIN ms_wilayah c ON a.kd_wilayah = c.kd_wilayah 
+          LEFT JOIN ms_user d ON d.user_name=a.ta 
+          LEFT JOIN ms_menu f ON f.id=a.id_menu 
+          LEFT JOIN ms_user e ON e.user_name=a.user_verifikasi
+          WHERE a.kd_wilayah ='$kdwil' AND month(a.tgl_req)='$bulan' ORDER BY a.tgl_req ASC");
+
+	$querypemda=$this->db->query("Select pemda from ms_wilayah where kd_wilayah='$kdwil'");
+
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Cetak PDF Laporan Request',
+	 'q'=>$query,
+	 'qp'=>$querypemda,
+	 'bulan'=>$this->conv_bulan($bulan)
+	 );
+	    $html = $this->load->view('laporan/lap_req', $data, true);
+	    $this->pdfgenerator->generate($html,'reqpdf'); 
+ }
+
+  public function pdfmon() {
+	$this->load->library('pdfgenerator');
+	$kdwil='';
+ 	$kdsys='';
+	$kdwil=$this->uri->segment(3);
+	$kdsys=$this->uri->segment(4);
+	$query=$this->db->query("SELECT a.id, upper(a.title) AS Menu, a.url,a.LEVEL,a.parent_id,a.kd_wilayah,a.kd_sistem, a.last_update,b.kd_system, b.nm_system AS nmsys,c.nm_wilayah AS nmwil FROM ms_menu a INNER JOIN ms_system b ON a.kd_sistem = b.kd_system 
+		INNER JOIN ms_wilayah c ON a.kd_wilayah = c.kd_wilayah WHERE a.kd_sistem = '$kdsys' AND c.kd_wilayah ='$kdwil' AND LEVEL='1'
+		UNION ALL
+		SELECT a.id, upper(a.title) AS Menu, a.url,a.LEVEL,a.parent_id,a.kd_wilayah,a.kd_sistem, 
+		a.last_update,b.kd_system, b.nm_system AS nmsys,c.nm_wilayah AS nmwil FROM ms_menu a INNER JOIN ms_system b ON a.kd_sistem = b.kd_system 
+		INNER JOIN ms_wilayah c ON a.kd_wilayah = c.kd_wilayah WHERE a.kd_sistem = '$kdsys' AND c.kd_wilayah ='$kdwil' AND LEVEL='2'
+		UNION ALL
+		SELECT a.id, upper(a.title) AS Menu, a.url,a.LEVEL,a.parent_id,a.kd_wilayah,a.kd_sistem, 
+		a.last_update,b.kd_system, b.nm_system AS nmsys,c.nm_wilayah AS nmwil FROM ms_menu a INNER JOIN ms_system b ON a.kd_sistem = b.kd_system 
+		INNER JOIN ms_wilayah c ON a.kd_wilayah = c.kd_wilayah WHERE a.kd_sistem = '$kdsys' AND c.kd_wilayah ='$kdwil' AND LEVEL='3'
+		UNION ALL
+		SELECT a.id, upper(a.title) AS Menu, a.url,a.LEVEL,a.parent_id,a.kd_wilayah,a.kd_sistem, 
+		a.last_update,b.kd_system, b.nm_system AS nmsys,c.nm_wilayah AS nmwil FROM ms_menu a INNER JOIN ms_system b ON a.kd_sistem = b.kd_system 
+		INNER JOIN ms_wilayah c ON a.kd_wilayah = c.kd_wilayah WHERE a.kd_sistem = '$kdsys' AND c.kd_wilayah ='$kdwil' AND LEVEL='4'
+		ORDER BY id");
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Cetak PDF Laporan monitoring',
+	 'q'=>$query
+	 );
+	    $html = $this->load->view('laporan/lap_mon', $data, true);
+	    $this->pdfgenerator->generate($html,'monpdf'); 
+ }
+
+
+
+ public function page_kinerja() {
+ 	$iduser= $this->session->userdata('iduser');
+	$tgl=date('Y-m-d');;
+	//$date="2012/05/03";
+	$y = date('Y', strtotime($tgl));
+	$m = date('m', strtotime($tgl));
+	$bulan=$this->conv_bulan($m);
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - e-Kinerja',
+	 'iduser' =>$iduser,
+	 'koor' =>$koor,
+	 'y' =>$y,
+	 'bulan' =>$bulan,
+	 'tgl' =>$tgl,
+	 'page' =>'aplikasi/v_kinerja'
+	 );
+	 $this->load->view('temp/wrapper',$data);  
+ }
+
+public function load_kinerja(){
+	$iduser= $this->session->userdata('iduser');
+	$tgl=$this->input->post('date');
+	//$date="2012/05/03";
+	$t = date('d', strtotime($tgl));
+	$y = date('Y', strtotime($tgl));
+	$m = date('m', strtotime($tgl));
+	$bulan=$this->conv_bulan($m);
+	$d = date('l', strtotime($tgl));
+	$hari=$this->conv_hari($d);
+	if($d=='Friday'){
+		$variabel='Istirahat';
+	}else{
+		$variabel='';
+	}
+	
+
+	$query=$this->db->query(" SELECT * from e_kinerja where user_name='$iduser' and tgl='$tgl' ");
+
+	if($query->num_rows <1){
+		$data = array(
+			   array(
+			      'user_name' =>  $iduser,
+			      'kd_wilayah' =>  $this->session->userdata('kd_wil'),
+			      'tgl' => $tgl,
+			      'hari' => $hari,
+			      'jam_kerja' => '08.00-09.00',
+			      'deskripsi' => ''
+			   ),
+			      array(
+			      'user_name' =>  $iduser,
+			      'kd_wilayah' =>  $this->session->userdata('kd_wil'),
+			      'hari' => $hari,
+			      'tgl' => $tgl,
+			      'jam_kerja' => '09.00-10.00',
+			      'deskripsi' => ''
+			   ),
+			      array(
+			      'user_name' =>  $iduser,
+			      'kd_wilayah' =>  $this->session->userdata('kd_wil'),
+			      'tgl' => $tgl,
+			      'hari' => $hari,
+			      'jam_kerja' => '10.00-11.00',
+			      'deskripsi' => ''
+			   ),
+
+			      array(
+			      'user_name' =>  $iduser,
+			      'kd_wilayah' =>  $this->session->userdata('kd_wil'),
+			      'tgl' => $tgl,
+			      'hari' => $hari,
+			      'jam_kerja' => '11.00-12.00',
+			      'deskripsi' => ''
+			   ),
+
+			      array(
+			      'user_name' =>  $iduser,
+			      'kd_wilayah' =>  $this->session->userdata('kd_wil'),
+			      'tgl' => $tgl,
+			      'hari' => $hari,
+			      'jam_kerja' => '12.00-13.00',
+			      'deskripsi' => 'Istirahat'
+			   ),
+
+			      array(
+			      'user_name' =>  $iduser,
+			      'kd_wilayah' =>  $this->session->userdata('kd_wil'),
+			      'tgl' => $tgl,
+			      'hari' => $hari,
+			      'jam_kerja' => '13.00-14.00',
+			      'deskripsi' => $variabel
+			   ),
+
+			      array(
+			      'user_name' =>  $iduser,
+			      'kd_wilayah' =>  $this->session->userdata('kd_wil'),
+			      'tgl' => $tgl,
+			      'hari' => $hari,
+			      'jam_kerja' => '14.00-15.00',
+			      'deskripsi' => ''
+			   ),
+
+			      array(
+			      'user_name' =>  $iduser,
+			      'kd_wilayah' =>  $this->session->userdata('kd_wil'),
+			      'tgl' => $tgl,
+			      'hari' => $hari,
+			      'jam_kerja' => '15.00-16.00',
+			      'deskripsi' => ''
+			   ),
+
+			      array(
+			      'user_name' =>  $iduser,
+			      'kd_wilayah' =>  $this->session->userdata('kd_wil'),
+			      'tgl' => $tgl,
+			      'hari' => $hari,
+			      'jam_kerja' => '16.00-17.00',
+			      'deskripsi' => ''
+			   ),
+			       array(
+			      'user_name' =>  $iduser,
+			      'kd_wilayah' =>  $this->session->userdata('kd_wil'),
+			      'tgl' => $tgl,
+			      'hari' => $hari,
+			      'jam_kerja' => 'Lembur',
+			      'deskripsi' => ''
+			   ),
+			   
+			);
+
+	$this->db->insert_batch('e_kinerja', $data); 
+
+
+	}
+
+
+	$query2=$this->db->query(" SELECT a.user_name, a.tgl, a.jam_kerja,a.jlh_kerja,a.jam_lembur, 
+	 a.jlh_lembur, a.tempat, a.deskripsi,  b.nm_wilayah
+	 FROM e_kinerja a LEFT JOIN ms_wilayah b ON a.tempat = b.kd_wilayah
+	 where a.user_name='$iduser' and a.tgl='$tgl' ");
+	$tb="
+		
+		  <b>Hari / Tanggal : ".$hari.", ".$t." ".$bulan." ".$y."</b><br>
+		  <form name='ket'>
+		  <input type='radio' name='lapker' id='masuk' value='masuk' > Masuk &nbsp;&nbsp;
+		  <input type='radio' name='lapker' id='sakit' value='Sakit' > Sakit  &nbsp;&nbsp;
+		  <input type='radio' name='lapker' id='izin' value='Izin' > Izin  &nbsp;&nbsp;
+		  <input type='radio' name='lapker' id='libur' value='Libur' > Libur
+		  
+		  </form>
+		
+          <table style='font-size:11px;' 
+           class='table table-bordered table-hover table-heading table-datatable' id='tbkinerja'>
+                <thead style='background-color: #e5e5e5;'>
+                  <tr>
+                    <th width='8%'>Jam</th>
+                    <th width='3%'>S</th>
+                    <th width='60%'>Uraian Kegiatan</th>
+                    <th>Tempat</th>
+                    <th width='10%'>Jam Lembur</th>
+                    <th width='3%'>S</th>
+                  </tr>
+                </thead>
+                <tbody>";
+
+                foreach ($query2->result_array() as $row) {
+                if($row['deskripsi']=='Istirahat'){
+                	$tdc="style='background-color: #e5e5e5;'";
+                }else{
+                	$tdc="";
+                }
+                $tb .="<tr ".$tdc.">";
+                $tb .="<td>".$row['jam_kerja']."</td>";
+                $tb .="<td>".$row['jlh_kerja']."</td>";
+                $tb .="<td >".$row['deskripsi']."</td>";
+                $tb .="<td>".$row['nm_wilayah']."</td>";
+                $tb .="<td>".$row['jam_lembur']."</td>";
+                $tb .="<td>".$row['jlh_lembur']."</td>";
+                $tb .="</tr>";
+                }
+                       
+                      
+                      
+    $tb .="  </tbody>
+           </table>
+         ";
+
+    echo $tb;
+}
+public function popkinerja(){
+	 $iduser= $this->session->userdata('iduser');
+	 $tgl='';
+	 $jam=$_GET['j'];
+	 $tgl=$_GET['d'];
+
+
+	 $query = $this->db->query("SELECT a.user_name, a.tgl, a.jam_kerja, a.jam_lembur, a.jlh_lembur, a.tempat, a.deskripsi,  b.nm_wilayah
+	 	FROM e_kinerja a LEFT JOIN ms_wilayah b ON a.tempat = b.kd_wilayah
+	 	where a.user_name ='$iduser' and a.tgl='$tgl' and a.jam_kerja='$jam' ");
+	 $data = $query ->row_array();
+	 $ex=explode('/', $data['jam_lembur']);
+	 $ml=$ex[0];
+	 $sl=$ex[1];
+	 $popup ="<div class='col-sm-12'>
+	
+	 Uraian Kegiatan Harian
+
+	  <form  id='kinerja_form' class='form-horizontal' >
+	  <input type='hidden' name='id' id='id' value='".$iduser."'>
+	  <input type='hidden' name='tgl' id='tgl' value='".$tgl."'>
+	  <input type='hidden' name='jam' id='jam' value='".$jam."'>
+	 
+	
+	  <table width='100%' style='border:none'>
+	 		<tr>
+			<td width='20%'></td>
+			<td width='3%'></td>
+			<td></td>
+			</tr>
+			<tr>
+			<td width='20%'>Tanggal</td>
+			<td width='3%'>:</td>
+			<td>".$tgl."</td>
+			</tr>
+			<tr>
+			<td width='20%'>Jam</td>
+			<td width='3%'>:</td>
+			<td>".$jam."</td>
+			</tr>
+	";
+
+	 $popup .="
+	 		<tr>
+			<td width='20%'>Tempat</td>
+			<td width='3%'>:</td>
+			<td>
+				<select class='select' name='tempat' id='tempat' >";
+				$popup .=
+						 $query2 =$this->db->get('ms_wilayah');
+				$popup .= "<option selected value='".$data['tempat']."'>".$data['nm_wilayah']."</option>";
+								foreach ($query2->result_array() as $row) {
+				$popup .= "<option value=".$row['kd_wilayah'].">".$row['nm_wilayah']."</option>";
+								}"";
+				$popup .=
+				"</select>
+			</td>
+			</tr>";
+	if($data['jam_kerja']=='Lembur'){
+			$popup .="<tr>
+			<td width='20%' valign='top'>Jam lembur</td>
+			<td width='3%' valign='top'>:</td>
+			<td>
+				Mulai&nbsp;<select class='span2' name='ml' id='ml' >
+				<option selected value='".$ml."'>".$ml."</option>
+				<option  value='00.00'>00.00</option>
+				<option  value='01.00'>01.00</option>
+				<option  value='02.00'>02.00</option>
+				<option  value='03.00'>03.00</option>
+				<option  value='04.00'>04.00</option>
+				<option  value='05.00'>05.00</option>
+				<option  value='06.00'>06.00</option>
+				<option  value='07.00'>07.00</option>
+				<option  value='08.00'>08.00</option>
+				<option  value='09.00'>09.00</option>
+				<option  value='10.00'>10.00</option>
+				<option  value='11.00'>11.00</option>
+				<option  value='12.00'>12.00</option>
+				<option  value='13.00'>13.00</option>
+				<option  value='14.00'>14.00</option>
+				<option  value='15.00'>15.00</option>
+				<option  value='16.00'>16.00</option>
+				<option  value='17.00'>17.00</option>
+				<option  value='18.00'>18.00</option>
+				<option  value='19.00'>19.00</option>
+				<option  value='20.00'>20.00</option>
+				<option  value='21.00'>21.00</option>
+				<option  value='22.00'>22.00</option>
+				<option  value='23.00'>23.00</option>
+
+
+				
+				</select>
+				&nbsp;Selesai&nbsp;<select class='span2' name='sl'  id='sl' >
+				<option selected value='".$sl."'>".$sl."</option>
+				<option  value='01.00'>01.00</option>
+				<option  value='02.00'>02.00</option>
+				<option  value='03.00'>03.00</option>
+				<option  value='04.00'>04.00</option>
+				<option  value='05.00'>05.00</option>
+				<option  value='06.00'>06.00</option>
+				<option  value='07.00'>07.00</option>
+				<option  value='08.00'>08.00</option>
+				<option  value='09.00'>09.00</option>
+				<option  value='10.00'>10.00</option>
+				<option  value='11.00'>11.00</option>
+				<option  value='12.00'>12.00</option>
+				<option  value='13.00'>13.00</option>
+				<option  value='14.00'>14.00</option>
+				<option  value='15.00'>15.00</option>
+				<option  value='16.00'>16.00</option>
+				<option  value='17.00'>17.00</option>
+				<option  value='18.00'>18.00</option>
+				<option  value='19.00'>19.00</option>
+				<option  value='20.00'>20.00</option>
+				<option  value='21.00'>21.00</option>
+				<option  value='22.00'>22.00</option>
+				<option  value='23.00'>23.00</option>
+				<option  value='24.00'>24.00</option>
+				</select>
+				&nbsp;Jumlah jam&nbsp;<select style='width:75px' name='tl' id='tl' >
+				<option selected value='".$data['jlh_lembur']."'>".$data['jlh_lembur']."</option>
+				<option  value='1'>1</option>
+				<option  value='2'>2</option>
+				<option  value='3'>3</option>
+				<option  value='4'>4</option>
+				<option  value='5'>5</option>
+				<option  value='6'>6</option>
+				<option  value='7'>7</option>
+				<option  value='8'>8</option>
+				<option  value='9'>9</option>
+				<option  value='10'>10</option>
+				<option  value='11'>11</option>
+				<option  value='12'>12</option>
+
+				</select>
+			</td>
+			</tr>";
+			}else{
+				$popup .='';
+			}
+
+	$popup .="<tr>
+			<td width='20%' valign='top'>Uraian</td>
+			<td width='3%' valign='top'>:</td>
+			<td valign='top'><textarea class='span5 form-control' rows='4' id='desk' name='desk' >".$data['deskripsi']."</textarea></td>
+			</tr>";
+
+	 $popup .="</table>
+			<div class='form-actions'>
+			<button onclick='submitkinerja();' class='btn btn-xs  btn-primary' >
+			<span>&nbsp;<i class='fa fa-pencil'></i>&nbsp;</span>
+			Simpan</button>
+			<button type='reset' class='btn btn-xs  btn-danger' >
+			<span>&nbsp;<i class='fa fa-refresh'></i>&nbsp;</span>
+			Reset</button>
+			</div>
+			</form>
+			<div id='notif'></div>
+			</div>
+			";
+
+	 echo $popup;
+
+
+
+}
+
+public function upkinerja(){
+		$id=$this->session->userdata('iduser');
+		$tip=$_POST['tip'];
+		$tgl=$_POST['tgl'];
+		$jam=$_POST['jam'];
+		
+		if( $tip==''){
+			if($jam=='Lembur'){
+			$data = array(
+				'deskripsi'=>	$_POST['desk'],
+				'tempat'=>	$_POST['tempat'],
+				'jam_lembur'=>	$_POST['ml']."/".$_POST['sl'],
+				'jlh_lembur'=>	$_POST['tl'],
+				'jlh_kerja' => 0
+			);
+		}else{
+			$data = array(
+				'deskripsi'=>	$_POST['desk'],
+				'tempat'=>	$_POST['tempat'],
+				'jlh_kerja' => 1
+			);
+		}
+		$this->db->update('e_kinerja', $data, array('user_name' => $id, 'tgl' => $tgl, 'jam_kerja' => $jam));
+
+		}else{
+			$data = array(
+				'deskripsi'=>$tip,
+				'tempat'=>	'',
+				'jam_lembur'=>	'',
+				'jlh_lembur'=>	'',
+				'jlh_kerja' => 0
+			);
+			$this->db->update('e_kinerja', $data, array('user_name' => $id, 'tgl' => $tgl, 'jam_kerja !=' => 'Lembur'));
+			echo $tip;
+		}
+}//end upkinerja
+
+
+public function rklpup(){
+	$id=$_GET['id'];
+	$tgl=$_GET['d'];
+	$ex=explode('-', $tgl);
+	$xbln=$ex[1];
+	$xthn=$ex[0];
+
+	
+
+
+	$header ="<b>Rekapitulasi Kinerja Bulan ".$bulan=$this->conv_bulan($xbln)." ".$xthn."</b> 
+	<a href='".base_url()."app/pdfkerja/".$id."/".$tgl."' target='_blank' class=' btn btn-xs pull-right' >
+		  			 Print Laporan </a><br><hr/>";
+
+	 echo $header;
+	$query=$this->db->query(" SELECT tgl as rtgl,  user_name as id
+	 FROM e_kinerja
+	 where user_name='$id' and substr(tgl,6,2)='$xbln' GROUP by tgl ");
+	
+   foreach ($query->result_array() as $r) {
+   				$tanggal=$r['rtgl'];
+                $t = date('d', strtotime($tanggal));
+				$y = date('Y', strtotime($tanggal));
+				$m = date('m', strtotime($tanggal));
+				$bulan=$this->conv_bulan($m);
+				$d = date('l', strtotime($tanggal));
+				$hari=$this->conv_hari($d);
+		  $tb ="
+		  <b>Hari / Tanggal : ".$hari.", ".$t." ".$bulan." ".$y."</b><br>
+          <table style='font-size:11px;' 
+           class='table table-bordered table-hover table-heading table-datatable' id='tbkinerja'>
+                <thead style='background-color: #e5e5e5;'>
+                  <tr>
+                    <th width='8%'>Jam</th>
+                    <th width='3%'>S</th>
+                    <th width='60%'>Uraian Kegiatan</th>
+                    <th>Tempat</th>
+                    <th width='10%'>Jam Lembur</th>
+                    <th width='3%'>S</th>
+                  </tr>
+                </thead>
+                <tbody>";
+				 $query2=$this->db->query(" SELECT a.user_name, a.jam_kerja,a.jlh_kerja,a.jam_lembur, 
+				 a.jlh_lembur, a.tempat, a.deskripsi,  b.nm_wilayah
+				 FROM e_kinerja a LEFT JOIN ms_wilayah b ON a.tempat = b.kd_wilayah
+				 where a.user_name='$id' and a.tgl='$tanggal' ");
+                 foreach ($query2->result_array() as $row) {
+                if($row['deskripsi']=='Istirahat'){
+                	$tdc="style='background-color: #e5e5e5;'";
+                }else{
+                	$tdc="";
+                }
+
+             
+                $tb .="<tr ".$tdc.">";
+                $tb .="<td>".$row['jam_kerja']."</td>";
+                $tb .="<td>".$row['jlh_kerja']."</td>";
+                $tb .="<td >".$row['deskripsi']."</td>";
+                $tb .="<td>".$row['nm_wilayah']."</td>";
+                $tb .="<td>".$row['jam_lembur']."</td>";
+                $tb .="<td>".$row['jlh_lembur']."</td>";
+                $tb .="</tr>";
+               
+                }       
+                      
+                      
+    $tb .="  </tbody>
+           </table>
+         ";
+          
+           echo $tb;
+        }
+
+  
+
+}
+
+
+public function pdfkerja() {
+	$this->load->library('pdfgenerator');
+	$id='';
+	$tgl='';
+	$id=$this->uri->segment(3);
+	$tgl=$this->uri->segment(4);
+	$ex=explode('-', $tgl);
+	$xbln=$ex[1];
+	
+
+
+
+	 $query=$this->db->query(" SELECT tgl as rtgl,  user_name as id
+	 FROM e_kinerja
+	 where user_name='$id' and substr(tgl,6,2)='$xbln' GROUP by tgl ");
+
+	 $query2=$this->db->query(" SELECT  a.user_name AS id, b.nm_wilayah AS wil, c.nm_lengkap AS nama,c.jabatan AS jab, c.atasan as koor
+	 FROM e_kinerja a 
+	 INNER JOIN ms_wilayah b ON a.kd_wilayah=b.kd_wilayah
+	 INNER JOIN ms_user c ON a.user_name=c.user_name
+	 WHERE a.user_name='$id' ORDER BY a.no DESC");
+
+	
+ 
+
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Cetak PDF Laporan Kerja',
+	 'q1'=>$query,
+	 'qx'=>$query2
+	 // 'q2'=>$query2
+	 );
+	    $html = $this->load->view('laporan/lap_kerja', $data, true);
+	    $this->pdfgenerator->generate($html,'e-Kinerja.pdf'); 
+ }
+
+
+ public function pdfkerja2() {
+	$this->load->library('pdfgenerator');
+	$id='';
+	$tgl='';
+	$id=$this->uri->segment(3);
+	$xbln=$this->uri->segment(4);
+
+
+
+
+	 $query=$this->db->query(" SELECT tgl as rtgl,  user_name as id
+	 FROM e_kinerja
+	 where user_name='$id' and substr(tgl,6,2)='$xbln' GROUP by tgl ");
+
+	 $query2=$this->db->query(" SELECT  a.user_name AS id, b.nm_wilayah AS wil, c.nm_lengkap AS nama,c.jabatan AS jab, c.atasan as koor
+	 FROM e_kinerja a 
+	 INNER JOIN ms_wilayah b ON a.kd_wilayah=b.kd_wilayah
+	 INNER JOIN ms_user c ON a.user_name=c.user_name
+	 WHERE a.user_name='$id' ORDER BY a.no DESC");
+
+	
+ 
+
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Cetak PDF Laporan Kerja',
+	 'q1'=>$query,
+	 'qx'=>$query2
+	 // 'q2'=>$query2
+	 );
+	    $html = $this->load->view('laporan/lap_kerja', $data, true);
+	    $this->pdfgenerator->generate($html,'e-Kinerja.pdf'); 
+ }
+
+public function conv_bulan($bulan){
+switch ($bulan){
+case 1: return "Januari"; break;
+case 2: return "Februari"; break;
+case 3: return "Maret"; break;
+case 4: return "April"; break;
+case 5: return "Mei"; break;
+case 6: return "Juni"; break;
+case 7: return "Juli"; break;
+case 8: return "Agustus"; break;
+case 9: return "September";break;
+case 10: return "Oktober"; break;
+case 11: return "November"; break;
+case 12: return "Desember"; break;
+}
+}//end conv_bulan
+
+public function conv_hari($hari){
+switch ($hari){
+case "Sunday"	: return "Minggu"; break;
+case "Monday"	: return "Senin"; break;
+case "Tuesday"	: return "Selasa"; break;
+case "Wednesday": return "Rabu"; break;
+case "Thursday"	: return "Kamis"; break;
+case "Friday"	: return "Jum'at"; break;
+case "Saturday"	: return "Sabtu"; break;
+
+}
+}//end conv_hari
+
+ public function page_rekapkinerja() {
+ 	$cekjab=$this->session->userdata('jabatan');
+
+ 	if($cekjab =='AD' or $cekjab =='5' or $cekjab =='12'){
+ 	  $data=array('title'=>'e-Monitoring | MSM Consultant - User',
+	 'wil'=> $this->m_data->getWilArr(),
+	 'user'=> $this->m_data->getAllUser(),
+	 'page' =>'aplikasi/v_rekapkinerja'
+	 );
+	 $this->load->view('temp/wrapper',$data);
+
+ 	}else{
+ 	
+	 $data=array('title'=>'e-Monitoring | MSM Consultant - Forbidden Page',
+	 'page' =>'temp/forbidden'
+	 );
+	 $this->load->view('temp/wrapper',$data);    
+ 	}
+ } //end page_rekapkinerja
+
+
+ 	public function vrekkinerja(){
+ 	$bulan='';
+	$bulan=$this->input->post('bulan');
+	$cekjab=$this->session->userdata('jabatan');
+	$iduser= $this->session->userdata('iduser');
+
+	if($cekjab=='12'){
+		$query=$this->db->query("SELECT a.tgl AS rtgl,  a.user_name AS id, b.nm_wilayah AS wil, upper(c.nm_lengkap) AS nama,c.jabatan AS jab
+	 FROM e_kinerja a 
+	 INNER JOIN ms_wilayah b ON a.kd_wilayah=b.kd_wilayah
+	 INNER JOIN ms_user c ON a.user_name=c.user_name
+	 WHERE SUBSTR(a.tgl,6,2)='$bulan' and atasan like '%$iduser%' GROUP BY id ");
+	}else{
+		$query=$this->db->query("SELECT a.tgl AS rtgl,  a.user_name AS id, b.nm_wilayah AS wil, upper(c.nm_lengkap) AS nama,c.jabatan AS jab
+	 FROM e_kinerja a 
+	 INNER JOIN ms_wilayah b ON a.kd_wilayah=b.kd_wilayah
+	 INNER JOIN ms_user c ON a.user_name=c.user_name
+	 WHERE SUBSTR(a.tgl,6,2)='$bulan' GROUP BY id ");
+	}
+
+	// SELECT a.user_name, a.nm_lengkap,a.jabatan, a.status, b.nm_wilayah, b.kd_wilayah
+ //                              FROM ms_user a  INNER JOIN ms_wilayah b ON a.kd_wilayah=b.kd_wilayah
+	
+
+	$tb="
+          <table style='font-size:11px;' 
+           class='table table-bordered table-hover table-heading table-datatable' id='datatable-1'>
+                <thead style='background-color: #e5e5e5;'>
+                  <tr>
+                    <th>Nama Karyawan</th>
+                    <th>jabatan</th>
+                    <th>Wilayah Kerja</th>
+                    <th width='20%'>Rekapitulasi Kinerja</th>
+
+                  </tr>
+                </thead>
+                <tbody>";
+
+	 foreach ($query->result_array() as $r) {
+							if($r['jab']=='AD'){
+								$jab='Management';
+							}
+
+	 						if($r['jab']=='1'){
+								$jab='Helpdesk';
+							}
+							if($r['jab']=='2'){
+								$jab='Asisten Programmer';
+							}
+							if($r['jab']=='3'){
+								$jab='Koordinator';
+							}
+							if($r['jab']=='4'){
+								$jab='Implementator';
+							}
+							if($r['jab']=='5'){
+								$jab='Junior Supervisor Programmer';
+							}
+							if($r['jab']=='6'){
+								$jab='Residen Consultant';
+							}
+							if($r['jab']=='7'){
+								$jab='ADM Tender';
+							}
+							if($r['jab']=='8'){
+								$jab='Bendahara';
+							}
+							if($r['jab']=='9'){
+								$jab='Sekretaris';
+							}
+							if($r['jab']=='10'){
+								$jab='Programmer';
+							}
+							if($r['jab']=='11'){
+								$jab='Akuntan';
+							}
+							if($r['jab']=='12'){
+								$jab='Projek Manager';
+							}
+
+
+                $tb .="<tr>";
+                $tb .="<td><b>".$r['nama']."</b></td>";
+                $tb .="<td>".$jab."</td>";
+                $tb .="<td>".$r['wil']."</td>";
+                $tb .="<td><a  class='rekap1 btn btn-xs '  data-t='".$r['rtgl']."' data-i='".$r['id']."'>
+                Lihat Rekap Kinerja &nbsp; <i class='icon-calendar'></i></a>";
+                $tb .="</tr>";
+               
+                }       
+                      
+                      
+    $tb .="  </tbody>
+           </table>
+         ";
+           echo $tb;
+        
+
+	}// end vrekkinerja
+
+}/* End of file app.php */
+/* Location: ./application/controllers/app.php */

@@ -1,0 +1,328 @@
+<div class="span12">      		
+<div class="widget ">
+	<div class="widget-header">
+		<i class="icon-map-marker"></i>
+		<h3>Wilayah Manajemen</h3>
+		</div> <!-- /widget-header -->
+		<div class="widget-content">
+		<div class="control-group">
+		<div class="controls">					 
+			<div>
+			
+			<?php 
+			foreach($wilayah as $row){
+				$kd_wilayah  = $row['kd_wilayah'];
+				$kd_area  = $row['kd_area'];
+				$kd_subarea  = $row['kd_subarea'];
+				$nama_pic  = $row['nama_pic'];
+				$jabatan_pic  = $row['jabatan_pic'];
+				$cp_pic  = $row['cp_pic'];
+				$email_pic  = $row['email_pic'];
+				$keterangan  = $row['keterangan'];
+				
+			}
+									
+			?>
+				<form class="form-horizontal" role="form" method="post" action="<?php echo base_url();?>app/insert_wilayah">
+					<div class="row">
+						<div class="span4" >
+						<?php if($kd_wilayah==''){?>
+						<div class="control-group hide">											
+							<label class="control-label">Kode Wilayah</label>
+							<div class="controls">
+								<input readonly="true" type="text" class="span1" value="<?php echo $max['max']+1?>" name="kode_wilayah" id="kode_wilayah" required>
+							</div> <!-- /controls -->				
+						</div>
+						<?php }else{
+						echo "<div class='control-group hide'>											
+								<label class='control-label'>Kode Wilayah</label>
+								<div class='controls'>
+									<input type='text' value='$kd_wilayah' class='span1' name='kode_wilayah' id='kode_wilayah' readonly='true'>
+								</div> 
+							</div>";
+						}?>
+						
+						</div>
+					</div>
+					<div class="row">
+						<div class="span4" >
+						
+							<?php if($kd_wilayah==''){?>
+							<div class="control-group">											
+								<label class="control-label">Area</label>
+								<div class="controls">
+									<select class=" span3 populate placeholder select" name="kode_prop" id="kode_prop" onchange="loadareawil();" required=''>
+									<option>-- Pilih Area --</option>
+									<?php 
+									//$propx = $this->CI->db->query("select * from ms_area");
+									$isian=11;
+									foreach($prop as $row){
+										$pilih = ($row['kd_area'] == $isian) ? 'selected':'';
+										$isiarea  = $row['kd_area']." | ".$row['nm_area'];
+										echo "<option value='".$row['kd_area']."'>".$isiarea."</option>";
+									}
+									?>
+									</select>
+								</div>				
+							</div>
+								<?php }else{
+								echo "<div class='control-group'>											
+										<label class='control-label'>Area</label>
+										<div class='controls'>
+											<input type='text' value='$kd_area' class='span3' name='kode_prop' id='kode_prop' readonly='true'>
+										</div> 
+									</div>";
+								}?>
+									
+									
+									
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="span4" >
+							<?php if($kd_wilayah==''){?>
+							<div class="control-group cmod">											
+								<label class="control-label">Sub Area</label>
+								<div class="controls">
+									<select class="span3 populate placeholder select" name="kode_kab" id="kode_kab" required='' placeholder='Pilih' onchange="loadnmarea();">
+									<input type='text' class='nmsubarea span2 hide' id='nmsubarea' name='nmsubarea' />
+									</select>
+
+								</div> 						
+							</div> 
+							<?php }else{
+								echo "<div class='control-group'>											
+										<label class='control-label'>Sub Area</label>
+										<div class='controls'>
+											<input type='text' value='$kd_subarea' class='span3' name='kode_kab' id='kode_kab' readonly='true'>
+										</div> 
+									</div>";
+								}?>
+							
+						</div>
+					</div>				
+					
+					<div class="help-block with-errors"></div>
+
+					<div class="row">
+						<div class="span4" >
+					<div class="span4 widget-content">											
+						<fieldset>
+						<legend class="scheduler-border">List Sistem</legend>
+							<p><a class="btn btn-success btn-sm" id="addrow3"><i class="fa fa-plus jarak-kanan"></i>Tambah Sistem</a></p>
+								<table class="table table-bordered" id="table3">
+									<thead>
+										<tr>
+											<th class="text-center" width="5%">No</th>
+											<th class="text-center" width="15%">Sistem</th>
+											<th class="text-center" width="5%">Aksi</th>
+										</tr>
+									</thead>
+									<tbody>
+									<?php
+									$sistemx="";
+									$wchildx="";
+										if(count($wchild) > 0){
+											$nom2 = 0;
+											foreach($wchild as $data2){
+												$nom2++;
+												echo '<tr data-id="'.$nom2.'">
+													<td class="text-center"><span class="nomnya">'.$nom2.'</span></td>
+													<td>
+													<select name="nm_sistem[]" id="nm_sistem'.$nom2.'" class="populate placeholder select" >
+													<option></option>
+														<option value="SYS-0001#SIMAKDA-SIADINDA" '.($data2['kd_sistem'] == 'SYS-0001'?'selected':'').'>SIMAKDA-SIADINDA</option>
+														<option value="SYS-0002#SIADINDA" '.($data2['kd_sistem'] == 'SYS-0002'?'selected':'').'>SIADINDA</option>
+														<option value="SYS-0003#SIMBAKDA" '.($data2['kd_sistem'] == 'SYS-0003'?'selected':'').'>SIMBAKDA</option>
+														<option value="SYS-0004#SIMBAKDA GIS" '.($data2['kd_sistem'] == 'SYS-0004'?'selected':'').'>SIMBAKDA GIS</option>
+														<option value="SYS-0005#SIMPEG" '.($data2['kd_sistem'] == 'SYS-0005'?'selected':'').'>SIMPEG</option>
+														<option value="SYS-0006#BPHTB" '.($data2['kd_sistem'] == 'SYS-0006'?'selected':'').'>BPHTB</option>
+														<option value="SYS-0007#SIMPBB" '.($data2['kd_sistem'] == 'SYS-0007'?'selected':'').'>SIMPBB</option>
+														<option value="SYS-0008#SOPD" '.($data2['kd_sistem'] == 'SYS-0008'?'selected':'').'>SOPD</option>
+														<option value="SYS-0009#MR" '.($data2['kd_sistem'] == 'SYS-0009'?'selected':'').'>MR</option>
+														<option value="SYS-0010#SIMFARASI" '.($data2['kd_sistem'] == 'SYS-0010'?'selected':'').'>SIMFARASI</option>
+														<option value="SYS-0011#KPTSP" '.($data2['kd_sistem'] == 'SYS-0011'?'selected':'').'>KPTSP</option>
+														<option value="SYS-0012#SIMPD BPKAD" '.($data2['kd_sistem'] == 'SYS-0012'?'selected':'').'>SIMPD BPKAD</option>
+														<option value="SYS-0013#SIMGAJI" '.($data2['kd_sistem'] == 'SYS-0013'?'selected':'').'>SIMGAJI</option>
+														<option value="SYS-0014#SIPD" '.($data2['kd_sistem'] == 'SYS-0014'?'selected':'').'>SIPD</option>
+														<option value="SYS-0015#SISMIOP" '.($data2['kd_sistem'] == 'SYS-0015'?'selected':'').'>SISMIOP</option>
+														<option value="SYS-0016#SIMKASDA" '.($data2['kd_sistem'] == 'SYS-0016'?'selected':'').'>SIMKASDA</option>
+														<option value="SYS-0017#SIMBLUD" '.($data2['kd_sistem'] == 'SYS-0017'?'selected':'').'>SIMBLUD</option>
+														<option value="SYS-0018#SIMHONOR" '.($data2['kd_sistem'] == 'SYS-0018'?'selected':'').'>SIMHONOR</option>
+														<option value="SYS-0019#SIMBANTUAN" '.($data2['kd_sistem'] == 'SYS-0019'?'selected':'').'>SIMBANTUAN</option>
+														<option value="SYS-0020#SIMBANSOS" '.($data2['kd_sistem'] == 'SYS-0020'?'selected':'').'>SIMBANSOS</option>
+														<option value="SYS-0021#SAMSAT" '.($data2['kd_sistem'] == 'SYS-0021'?'selected':'').'>SAMSAT</option>
+														<option value="SYS-0022#SIMPD DPRD" '.($data2['kd_sistem'] == 'SYS-0022'?'selected':'').'>SIMPD DPRD</option>
+														<option value="SYS-0023#SIMPADU" '.($data2['kd_sistem'] == 'SYS-0023'?'selected':'').'>SIMPADU</option>
+														<option value="SYS-0024#E-Planning" '.($data2['kd_sistem'] == 'SYS-0024'?'selected':'').'>E-Planning</option>
+														<option value="SYS-0025#DATA CENTER" '.($data2['kd_sistem'] == 'SYS-0025'?'selected':'').'>DATA CENTER</option>
+														<option value="SYS-0026#E-Budget" '.($data2['kd_sistem'] == 'SYS-0026'?'selected':'').'>E-Budget</option>
+														<option value="SYS-0027#SIM Sertifikasi" '.($data2['kd_sistem'] == 'SYS-0027'?'selected':'').'>SIM Sertifikasi</option>
+														<option value="SYS-0028#SIMPAPEDA" '.($data2['kd_sistem'] == 'SYS-0028'?'selected':'').'>SIMPAPEDA</option>
+														<option value="SYS-0029#SIMPUSKESMAS" '.($data2['kd_sistem'] == 'SYS-0029'?'selected':'').'>SIMPUSKESMAS</option>
+														<option value="SYS-0030#SIMPATDA" '.($data2['kd_sistem'] == 'SYS-0030'?'selected':'').'>SIMPATDA</option>
+														<option value="SYS-0031#SKE" '.($data2['kd_sistem'] == 'SYS-0031'?'selected':'').'>SKE</option>
+														<option value="SYS-0032#SIMFARMASI" '.($data2['kd_sistem'] == 'SYS-0032'?'selected':'').'>SIMFARMASI</option>
+														<option value="SYS-0033#SIP" '.($data2['kd_sistem'] == 'SYS-0033'?'selected':'').'>SIP</option>
+														<option value="SYS-0034#BILLING RS" '.($data2['kd_sistem'] == 'SYS-0034'?'selected':'').'>BILLING RS</option>
+														<option value="SYS-0035#GIS" '.($data2['kd_sistem'] == 'SYS-0035'?'selected':'').'>GIS</option>
+													</select>
+													</td>
+													<td class="text-center"><a class="btn btn-danger btn-sm hRow" style="padding: 2px 7px;"><i class="fa fa-times"></i></a></td>
+												</tr>';
+											}
+										}
+									?>
+									</tbody>
+								</table>								
+						</fieldset>
+					</div>  
+					</div>
+					<div class="help-block with-errors"></div>
+					</div>
+										<!--div class="control-group">											
+											<label class="control-label">List Sistem</label>
+											<div class="controls">
+												<textarea type="text" class="span4" name="list_sistem" id="list_sistem" required></textarea>
+												<button type="button" class="btn btn-success btn-sm" id="btn_wilayah"><i class="icon-list"></i></button>
+											</div> 						
+										</div-->
+										<div class="help-block with-errors"></div>
+					
+									<div class="row">
+									<div class="span4" >
+										<div class="span6 widget-content">											
+											<fieldset>
+										<legend class="scheduler-border">PIC(Person-In-Charge)</legend>
+																<div class="control-group">											
+																	<label class="control-label">Nama</label>
+																	<div class="controls">
+																		<input type="text" value='<?php echo $nama_pic;?>' class="span4" name="nama_pic" required data-error="Nama PIC belum diisi">
+																	</div> <!-- /controls -->				
+																</div>
+																<div class="control-group">											
+																	<label class="control-label">Jabatan</label>
+																	<div class="controls">
+																	<select class="span2 populate placeholder select" name="jabatan_pic">
+																		<option value="">-- Pilih Jabatan --</option>
+																		<option value="AD" <?php echo ($jabatan_pic == 'AD')?'selected':'';?> >Management</option>
+																		<option value="1" <?php echo ($jabatan_pic == '1')?'selected':'';?> >Helpdesk</option>
+																		<option value="2" <?php echo ($jabatan_pic == '2')?'selected':'';?> >Asisten Programmer</option>
+																		<option value="3" <?php echo ($jabatan_pic == '3')?'selected':'';?> >Koordinator</option>
+																		<option value="4" <?php echo ($jabatan_pic == '4')?'selected':'';?> >Implementator</option>
+																		<option value="5" <?php echo ($jabatan_pic == '5')?'selected':'';?> >Junior Supervisor Programmer</option>
+																		<option value="6" <?php echo ($jabatan_pic == '6')?'selected':'';?> >Residen Consultant</option>
+																		<option value="7" <?php echo ($jabatan_pic == '7')?'selected':'';?> >ADM Tender</option>
+																		<option value="8" <?php echo ($jabatan_pic == '8')?'selected':'';?> >Bendahara</option>
+																		<option value="9" <?php echo ($jabatan_pic == '9')?'selected':'';?> >Sekretaris</option>
+																		<option value="10" <?php echo ($jabatan_pic == '10')?'selected':'';?> >Programmer</option>
+																		<option value="11" <?php echo ($jabatan_pic == '11')?'selected':'';?> >Akuntan</option>
+																		<option value="12" <?php echo ($jabatan_pic == '12')?'selected':'';?> >Projek Manager</option>
+																		<option value="13" <?php echo ($jabatan_pic == '13')?'selected':'';?> >QA</option>
+
+																		</select>
+																		
+																	</div> <!-- /controls -->				
+																</div>
+																<div class="control-group">											
+																	<label class="control-label">Contact Phone</label>
+																	<div class="controls">
+																		<input type="text" value='<?php echo $cp_pic;?>' class="span2" name="cp_pic">
+																	</div> <!-- /controls -->
+																</div>
+																<div class="control-group">											
+																	<label class="control-label">E-mail</label>
+																	<div class="controls">
+																		<input type="text" value='<?php echo $email_pic;?>' class="span2" name="email_pic" required>
+																	</div> <!-- /controls -->
+																</div>
+												</fieldset>			
+										</div> 
+										</div>    
+										</div>      
+
+					<div class="help-block with-errors"></div>
+
+					
+					<div class="row">
+						<div class="span4" >
+							<div class="control-group">											
+								<label class="control-label">Keterangan</label>
+								<div class="controls">
+									<textarea type="text" class="span3" name="keterangan"><?php echo $keterangan;?></textarea>
+								</div> <!-- /controls -->				
+							</div>
+						</div>
+					</div>		
+										
+					<div class="form-actions center">
+							<button type="submit" class="btn btn-primary btn-label-left" name="save">
+							<span><i class="icon-save"> Simpan</i></span></button>
+							<a class="btn btn-danger btn-label-left" href="<?php echo base_url();?>app/page_wilayah">
+							<span><i class="icon-ban-circle"> Cancel</i></span></a>
+					</div>
+				</form>
+			</div>
+		</div>
+		</div>
+	 </div>
+</div>
+<script type="text/javascript">
+$(function(){
+	
+		$("#addrow3").on("click", function(){
+			var tabel	= $('#table3 > tbody').find('tr:last');			
+			var newId	= (tabel.length > 0)?parseInt(tabel.data('id'))+1:1;
+			$('#table3 > tbody').append('<tr data-id="'+newId+'">'+
+				'<td class="text-center"><span class="nomnya"></span></td>'+
+				'<td><select name="nm_sistem[]" id="nm_sistem'+newId+'" class="populate placeholder select">'+
+				'<option>-- Pilih Sistem --</option>'+
+				'<option value="SYS-0001#SIMAKDA-SIADINDA" >SIMAKDA-SIADINDA</option>'+
+				'<option value="SYS-0002#SIADINDA" >SIADINDA</option>'+
+				'<option value="SYS-0003#SIMBAKDA" >SIMBAKDA</option>'+
+				'<option value="SYS-0004#SIMBAKDA GIS" >SIMBAKDA GIS</option>'+
+				'<option value="SYS-0005#SIMPEG" >SIMPEG</option>'+
+				'<option value="SYS-0006#BPHTB" >BPHTB</option>'+
+				'<option value="SYS-0007#SIMPBB" >SIMPBB</option>'+
+				'<option value="SYS-0008#SOPD" >SOPD</option>'+
+				'<option value="SYS-0009#MR" >MR</option>'+
+				'<option value="SYS-0010#SIMFARASI" >SIMFARASI</option>'+
+				'<option value="SYS-0011#KPTSP" >KPTSP</option>'+
+				'<option value="SYS-0012#SIMPD BPKAD" >SIMPD BPKAD</option>'+
+				'<option value="SYS-0013#SIMGAJI" >SIMGAJI</option>'+
+				'<option value="SYS-0014#SIPD" >SIPD</option>'+
+				'<option value="SYS-0015#SISMIOP" >SISMIOP</option>'+
+				'<option value="SYS-0016#SIMKASDA" >SIMKASDA</option>'+
+				'<option value="SYS-0017#SIMBLUD" >SIMBLUD</option>'+
+				'<option value="SYS-0018#SIMHONOR" >SIMHONOR</option>'+
+				'<option value="SYS-0019#SIMBANTUAN" >SIMBANTUAN</option>'+
+				'<option value="SYS-0020#SIMBANSOS" >SIMBANSOS</option>'+
+				'<option value="SYS-0021#SAMSAT" >SAMSAT</option>'+
+				'<option value="SYS-0022#SIMPD DPRD" >SIMPD DPRD</option>'+
+				'<option value="SYS-0023#SIMPADU" >SIMPADU</option>'+
+				'<option value="SYS-0024#E-Planning" >E-Planning</option>'+
+				'<option value="SYS-0025#DATA CENTER" >DATA CENTER</option>'+
+				'<option value="SYS-0026#E-Budget" >E-Budget</option>'+
+				'<option value="SYS-0027#SIM Sertifikasi" >SIM Sertifikasi</option>'+
+				'<option value="SYS-0028#SIMPAPEDA" >SIMPAPEDA</option>'+
+				'<option value="SYS-0029#SIMPUSKESMAS" >SIMPUSKESMAS</option>'+
+				'<option value="SYS-0030#SIMPATDA" >SIMPATDA</option>'+
+				'<option value="SYS-0031#SKE" >SKE</option>'+
+				'<option value="SYS-0032#SIMFARMASI" >SIMFARMASI</option>'+
+				'<option value="SYS-0033#SIP" >SIP</option>'+
+				'<option value="SYS-0034#BILLING RS" >BILLING RS</option>'+
+				'<option value="SYS-0035#GIS" >GIS</option>'+
+				'</select></td>'+
+				'<td class="text-center"><a class="btn btn-danger btn-sm hRow" style="padding: 2px 7px;"><i class="fa fa-times"></i></a></td>'+
+			'</tr>');
+			$('#table3').find(".nomnya").each(function(i,v){$(v).html(i+1);});
+		});
+		$("#table3").on("click", ".hRow", function(){
+			var tabel = $(this).parents("tr");
+			tabel.remove();
+			$('#table3').find(".nomnya").each(function(i,v){$(v).html(i+1);});
+		});
+});
+
+</script>

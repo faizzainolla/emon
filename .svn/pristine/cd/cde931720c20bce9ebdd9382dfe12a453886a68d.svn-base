@@ -1,0 +1,972 @@
+ </div>
+	    <!-- /row -->
+	    </div> <!-- /container -->
+	</div> <!-- /main-inner -->
+</div> <!-- /main -->
+    
+    
+
+    
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="<?php echo base_url();?>assets/plugins/jquery/jQuery-2.1.3.min.js"></script>
+<script type="text/javascript">
+	var baseurl = "<?php print base_url();?>";
+</script>
+<script type="text/javascript" src="<?php echo base_url();?>assets/plugins/summernote/summernote.js"></script>
+<script src="<?php echo base_url();?>assets/js/devoops.js"></script>
+<script src="<?php echo base_url();?>assets/plugins/jquery-ui/jquery-ui.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="<?php echo base_url();?>assets/js/bootstrap.min.js"></script>
+
+<script src="<?php echo base_url();?>assets/js/Chart.js" type="text/javascript"></script>
+
+<script src="<?php echo base_url();?>assets/js/base.js"></script>
+<script src="<?php echo base_url();?>assets/js/faq.js"></script>
+<script src="<?php echo base_url();?>assets/plugins/editable/js/bootstrap-editable.js"></script> 
+
+<!-- All functions for this theme + document.ready processing -->
+ <script src="<?php echo base_url();?>assets/js/validboots.js"></script>
+
+
+
+
+<script type="text/javascript">
+	var $results = $('#tbreq'),
+	    loadInterval = 60000;
+	    refresh = 2000;
+	   
+	(function loader() {
+
+	    $.get(baseurl+'app/req', function(html){
+
+	            $results.hide(200, function() {
+	                $results.empty();
+	                $results.html(html);
+	                $results.show(200, function() {
+	                	console.log($results);
+	                	 $('[data-toggle="tooltip"]').tooltip(); 
+
+						   $(".vdetail").click(function() {
+						   		var id=$(this).data('id');
+									    $.fancybox.open({
+									    	maxWidth	: 600,
+											maxHeight	: 700,
+											fitToView	: false,
+											width		: '70%',
+											height		: '60%',
+											autoSize	: false,
+											closeClick	: false,
+											openEffect	: 'none',
+											closeEffect	: 'none',
+									        href: baseurl+'app/vdetail?id='+id,
+									        type: "ajax"
+									     
+						    			});//end vdetail	
+						    	 });
+	                		
+				    $.fn.editable.defaults.mode = 'popup';
+				    $('.statreq ').editable({
+
+				    	
+				        placement: 'top',
+				        showbuttons: false ,
+				        url :baseurl+'app/upstatreq',
+				        source: [
+				        {value: 1, text: 'Belum'},
+				        {value: 2, text: 'Sudah'}
+				        ],
+				        success: function(response, newValue) {
+						var x = $(this).data('value');
+						var id = $(this).data('pk');
+						var jns = $(this).data('jns');
+						if (x=='1') {
+						$.fancybox.open({
+				    	maxWidth	: 500,
+						maxHeight	: 500,
+						fitToView	: false,
+						width		: '50%',
+						height		: '60%',
+						showCloseButton:true,
+						autoSize	: false,
+						closeClick	: false,
+						openEffect	: 'none',
+						closeEffect	: 'none',
+				        href: baseurl+'app/solusi?id='+id+'&jns='+jns,
+				        type: "ajax",
+
+
+						    });
+						};			   
+						}
+				        }); 
+				    
+
+				        $('.cstat').editable({
+				        placement: 'top',
+				        showbuttons: false ,
+				        url :baseurl+'app/upstatver',
+				        source: [
+				        {value: 1, text: 'Sudah'},
+				        {value: 0, text: 'Belum'}
+				        ]
+				        }
+
+				        );
+
+
+				     function callta(){
+				        	return $.ajax({
+				        		url:baseurl+'app/callta',
+				               //data: {value: data.id_user},
+				               	global: false,
+				                type: 'GET',
+				                dataType: 'json'
+				                
+				        	});
+				        }
+
+	       			 var testcallta = callta();
+			        testcallta.success(function(data){
+			        	$('.ta').editable({
+					        placement: 'top',
+					        url:baseurl+'app/upta',
+					        showbuttons: false,
+					        source: data,
+					         success: function(response, newValue) {
+					         	// setTimeout(loader, refresh);
+					         }
+					       
+					    });
+					   
+			        });
+
+	                    setTimeout(loader, loadInterval);//refrehs data row
+	                });
+	            });
+	    });
+	}
+
+
+	)();
+	
+var $results = $('#tbtrack'),
+	    loadInterval = 30000;
+	    refresh = 2000;
+	   
+	(function loader() {
+
+	    $.get(baseurl+'app/track', function(html){
+
+	            $results.hide(200, function() {
+	                $results.empty();
+	                $results.html(html);
+	                $results.show(200, function() {
+	                	console.log($results);
+	                	 $('[data-toggle="tooltip"]').tooltip(); 
+
+				        $.fn.editable.defaults.mode = 'popup';
+				    $('.cstatx ').editable({
+				        placement: 'top',
+				        showbuttons: false ,
+				        url :baseurl+'app/uptrack',
+				        source: [
+				        {value: 0, text: 'Belum'},
+				        {value: 1, text: 'Sudah'}
+				        ],success: function(response, newValue) {
+								var val = $(this).data('value'); 
+								var area = $(this).data('subarea');
+								var sistem = $(this).data('sistem');
+								$.ajax({
+										url:baseurl+'app/uptrack',
+									    data: {value: val,kd_subarea: area,kd_sistem: sistem},
+										global: false,
+										type: 'GET',
+										dataType: 'json'
+										
+									});
+							}
+						});
+								$(".vdetail").click(function() {
+									var sub = $(this).data('subarea');
+									var sis = $(this).data('sistem');
+									var jns = $(this).data('jenis');
+									var bln = $(this).data('bulan');
+									var thn = $(this).data('tahun');
+									if(jns=='-'){
+										alert("Data belum diterima.!");
+										return false;
+									}
+									    $.fancybox.open({
+									    	maxWidth	: 600,
+											maxHeight	: 700,
+											fitToView	: false,
+											width		: '70%',
+											height		: '60%',
+											autoSize	: false,
+											closeClick	: false,
+											openEffect	: 'none',
+											closeEffect	: 'none',
+									        href: baseurl+'app/vdetail_track?subarea='+sub+'&sistem='+sis+'&bulan='+bln+'&tahun='+thn,
+									        type: "ajax"
+									     
+									});
+						    	 });
+								 
+								$(".delmonitor").click(function() {
+									var sub = $(this).data('subarea');
+									var sis = $(this).data('sistem');
+									var jns = $(this).data('jenis');
+									if(jns=='-'){
+										alert("Data belum diterima.!");
+										return false;
+									}
+										var tanya = confirm("Apkah anda yakin ingin menghapus data ini.?");
+										if (tanya==true){
+										 $.ajax({
+										    url : baseurl+'app/master_hapus_monitor',
+											data:{db:'e_monitor',kolom1:'kd_subarea',isi1:sub,kolom2:'kd_sistem',isi2:sis},
+											dataType:'json',
+											type:'POST',
+											success:function(data){
+												 status = data.pesan;
+														if (status=='1'){  
+															alert('Data Sudah Dihapus.!');
+															//setTimeout(loader, refresh);
+															//$("#result").load("app/page_tracking_monitor");
+															//"<?php echo site_url(); ?>app/page_tracking_monitor";
+														} else {
+															alert('Data Gagal Hapus.!');
+														}
+											} 
+										   });
+										}
+						    	 }); 
+								 
+	                    setTimeout(loader, loadInterval);//refrehs data row
+	                });
+	            });
+	    });
+	}
+
+
+	)();
+	
+	var $resultss = $('#crtrack'),
+	    loadInterval = 30000;
+	    refresh = 2000;
+	   
+	(function loader() {
+
+	    $.get(baseurl+'app/crtrack', function(html){
+
+	            $resultss.hide(200, function() {
+	                $resultss.empty();
+	                $resultss.html(html);
+	                $resultss.show(200, function() {
+	                	console.log($resultss);
+	                	 $('[data-toggle="tooltip"]').tooltip(); 
+						 
+				function tah(){
+				        	return $.ajax({
+				        		url:baseurl+'app/addta',
+				               //data: {value: data.id_user},
+				               	global: false,
+				                type: 'GET',
+				                dataType: 'json'
+				                
+				        	});
+				        }
+					$.fn.editable.defaults.mode = 'popup';
+	       			 var xtah = tah();
+						xtah.success(function(data){
+			        	$('.tah').editable({
+					        placement: 'top',
+					        url:baseurl+'app/upta',
+					        showbuttons: false,
+					        source: data,
+					        success: function(response, newValue) {
+					         	// setTimeout(loader, refresh);
+					         }
+					       
+					    });
+					   
+			        });
+					
+				    $.fn.editable.defaults.mode = 'popup';
+					   $('.statcr ').editable({
+				        placement: 'top',
+				        showbuttons: false ,
+				        url :baseurl+'app/upstatcr',
+				        source: [
+				        {value: 0, text: 'OG'},
+				        {value: 1, text: 'OK'}
+				        ],success: function(response, newValue){
+								var kd_req = $(this).data('pk'); 
+								var kd_sub = $(this).data('subarea');
+								var status = $(this).data('value');
+								$.ajax({
+										url:baseurl+'app/upstatcr',
+									    data: {kd_request: kd_req,kd_subarea: kd_sub,status: status},
+										global: false,
+										type: 'POST',
+										dataType: 'json'
+										
+									});
+							}
+						});
+					
+						//$('.tglcr').datetimepicker({dateFormat: 'yy-mm-dd '});
+					  $.fn.editable.defaults.mode = 'popup';
+					   $('.tglcr ').editable({
+				        placement: 'top',
+				        showbuttons: false ,
+				        url :baseurl+'app/upstatcr',
+						
+				        source: [
+				        {value: 0, text: 'OG'},
+				        {value: 1, text: 'OK'}
+				        ],success: function(response, newValue){
+								var kd_req = $(this).data('pk'); 
+								var kd_sub = $(this).data('subarea');
+								var status = $(this).data('value');
+								$.ajax({
+										url:baseurl+'app/upstatcr',
+									    data: {kd_request: kd_req,kd_subarea: kd_sub,status: status},
+										global: false,
+										type: 'POST',
+										dataType: 'json'
+										
+									});
+							}
+						});
+						
+						$('.delcr').click(function(){
+							var kd_req = $(this).data('pk');
+							var kd_sub = $(this).data('subarea');
+							var del = confirm("Anda Yakin ingin menghapus CR ini?");
+							if(del==true){
+							$.ajax({
+								type:"POST",
+								url: baseurl+'app/master_hapus_wil',
+								data: {db:'e_request',kolom:'kd_request',isi: kd_req},
+								dataType: 'html',
+								success: function(data){
+									setTimeout(loader, refresh);
+								},
+								
+							});
+							}
+						});
+						
+							$(".vdetailcr").click(function() {
+									var pk = $(this).data('pk');
+									var area = $(this).data('area');
+									var subarea = $(this).data('subarea');
+									    $.fancybox.open({
+									    	maxWidth	: 600,
+											maxHeight	: 700,
+											fitToView	: false,
+											width		: '70%',
+											height		: '60%',
+											autoSize	: false,
+											closeClick	: false,
+											openEffect	: 'none',
+											closeEffect	: 'none',
+									        href: baseurl+'app/vdetailcr?subarea='+subarea+'&area='+area+'&pk='+pk,
+									        type: "ajax"
+									     
+									});
+						    	 });
+								 
+							  $.fn.combodate.defaults.mode = 'popup';
+						      $('.tglcr').combodate();
+						
+	                    setTimeout(loader, loadInterval);//refrehs data row
+	                });
+	            });
+	    });
+	}
+
+
+	)();
+	
+		 
+ 
+
+	// Run Datables plugin and create 3 variants of settings
+	function AllTables(){
+		tabelbiasa();
+		tabelcari();
+		tabeltool();
+
+		//tb-1();
+		LoadSelect2Script(MakeSelect2);
+	}
+	
+	function MakeSelect2(){
+		
+		$('.select').select2();
+		$('.dataTables_filter').each(function(){
+			$(this).find('label input[type=text]').attr('placeholder', 'Search');
+		});
+	}
+
+	function fancy(){
+
+		  $(".single").fancybox({
+		maxWidth	: 900,
+		maxHeight	: 900,
+		fitToView	: false,
+		width		: '90%',
+		height		: '90%',
+	    	helpers : {
+	    		title : {
+	    			type : 'over'
+	    		}
+	    	}
+	    });
+
+
+
+	}//end fancy
+
+	function vdata(){
+    var kdwilayah = $('#cwil').val();
+    var kdsystem  = $('#csystem').val();
+            $.ajax({
+            url : baseurl+'app/vdatmon',
+            data:{kdwil:kdwilayah, kdsys:kdsystem},
+            dataType:'html',
+            type:'POST',
+            success:function(data){
+
+            	$('#tabeldata').html(data)
+            		$('#datatable-4').dataTable( {
+		
+		          // "bFilter": false,
+			          "bSort": false ,
+			          "bInfo": false,
+			          "paging": false,
+					// "scrollX": true,
+					"sDom": "<'box-content'<'col-sm-6'f><'col-sm-6 text-right'l><'clearfix'>>rt<'box-content'<'col-sm-6'i><'col-sm-6 text-right'p><'clearfix'>>",
+					"sPaginationType": "bootstrap",
+					"oLanguage": {
+						"sSearch": "Pencarian ",
+						"sLengthMenu": '_MENU_'
+					}
+				});
+			    $(".log").click(function() {
+				var id = $(this).data('id');
+			    $.fancybox.open({
+			    	maxWidth	: 700,
+					maxHeight	: 800,
+					fitToView	: false,
+					width		: '80%',
+					height		: '90%',
+					autoSize	: false,
+					closeClick	: false,
+					openEffect	: 'none',
+					closeEffect	: 'none',
+			        href: baseurl+'app/log?id='+id,
+			        type: "ajax",
+					    });
+
+				});//end log	
+ 
+            } 
+           });
+            
+    }//end vdata	
+
+    function v_lap_monitoring(){
+    var kdwilayah = $('#cwil').val();
+    var kdsystem  = $('#csystem').val();
+            $.ajax({
+            url : baseurl+'app/vlapmon',
+            data:{kdwil:kdwilayah, kdsys:kdsystem},
+            dataType:'html',
+            type:'POST',
+            success:function(data){
+
+            	$('#tabeldata').html(data)
+            		$('#datatable-4').dataTable( {
+		
+		          // "bFilter": false,
+			          "bSort": false ,
+			          "bInfo": false,
+			          "paging": false,
+					// "scrollX": true,
+					"sDom": "<'box-content'<'col-sm-6 text-right'l><'clearfix'>>rt<'box-content'<'col-sm-6'i><'col-sm-6 text-right'p><'clearfix'>>",
+					
+					
+				});
+
+ 
+            } 
+           });
+            
+    }//end v_lap_monitoring	
+
+    function v_lap_request(){
+    var kdwilayah 	= $('#cwil').val();
+    var bulan  		= $('#bulan').val();
+            $.ajax({
+            url : baseurl+'app/vlapreq',
+            data:{kdwil:kdwilayah, bulan:bulan},
+            dataType:'html',
+            type:'POST',
+            success:function(data){
+            	$('#tabeldata').html(data)
+            	$('#datatable-4').dataTable( {
+		          // "bFilter": false,
+			          "bSort": false ,
+			          "bInfo": false,
+			          "paging": true,
+					// "scrollX": true,
+					"sDom": "<'box-content'<'clearfix'>>rt<'box-content'<'col-sm-6'i><'col-sm-6 text-right'p><'clearfix'>>",
+					
+					
+				});
+
+ 
+            } 
+           });
+            
+    }//end v_lap_monitoring	
+
+    function v_lap_rekapkinerja(){
+    		   
+
+    var bulan  = $('#bulan').val();
+            $.ajax({
+            url : baseurl+'app/vrekkinerja',
+            data:{bulan:bulan},
+            dataType:'html',
+            type:'POST',
+            success:function(data){
+
+            	$('#tabeldata').html(data)
+            		$('#datatable-1').dataTable( {
+		
+		         	// "bFilter": false,
+          "bSort": false ,
+          "bInfo": false,
+			"paging": false,
+			"sDom": "<'box-content'<'col-sm-6'f><'col-sm-6 text-right'l><'clearfix'>>rt<'box-content'<'col-sm-6'i><'col-sm-6 text-right'p><'clearfix'>>",
+			"sPaginationType": "bootstrap",
+			"oLanguage": {
+				"sSearch": "Pencarian &nbsp;",
+				"sLengthMenu": '_MENU_'
+			}
+					
+
+					
+				});
+            		 $('.rekap1').on('click',function() {
+					    var iduser = $(this).data('i');
+					    var tgl = $(this).data('t');
+					    //alert(iduser);
+					    //console.log(iduser);
+					          $.fancybox.open({
+					                         maxWidth   : 1200,
+					                         maxHeight  : 1200,
+					                         fitToView  : false,
+					                         width      : '90%',
+					                         height     : '90%',
+					                         autoSize   : false,
+					                         closeClick : false,
+					                         openEffect : 'none',
+					                         closeEffect    : 'none',
+					                         href: baseurl+'app/rklpup?d='+tgl+'&id='+iduser,
+					                         type: "ajax",
+					                         });
+					    });//end rekap1 
+
+ 
+            } 
+           });
+            
+    }//end v_lap_rekapkinerja	
+
+	function cvlog(){	     	
+	$(".vlog").show();
+	$(".addlog").hide();		
+	}
+
+	function caddfit(){
+	$(".addlog").show();
+	$(".vlog").hide();
+	}
+
+ function btnaddfit(){
+			   $('#addfit_form').on('submit', function (e) {
+			   	  e.preventDefault();
+				     var formData = $('#addfit_form').serialize();
+				     $.ajax({
+				     type: 'POST',
+				     async: false,
+				     cache: false,
+				   
+				     url: baseurl+'app/a_addfitur',
+				     dataType: 'html',
+				     data: formData,
+				     success: function (data) {
+
+				     alert('fitur telah ditambahkan');
+	     			 $.fancybox.close();
+				       
+				       }
+				    });
+				     return false;
+				   });
+			 
+			    }//end submit addfitur form
+	
+
+
+	function xc(){
+	    var c3 = (function () {
+	        var c3 = null;
+	        $.ajax({
+	             url:baseurl+'app/chart1',
+	                  async: false,
+	                   global: false,
+	                   type: 'GET',
+	                   dataType: 'json',
+	                   success: function(data) {
+	                        c3=data;
+	                       // var tes=c3[0].wilayah;
+	                    }     
+	            });
+	        return c3;
+	    })();
+                 
+        var data = {
+        	labels: c3[0],
+            datasets: [
+                {
+                    label: "Selesai",
+                    fillColor: "rgba(65, 131, 215,0.5)",
+                    strokeColor: "rgba(68,108,179,0.5)",
+                    highlightFill: "rgba(68,108,182,0.75)",
+                    highlightStroke: "rgba(65, 131, 218,1)",
+                    data:  c3[1],
+                },
+                {
+                    label: "Ongoing",
+                    fillColor: "rgba(207, 0, 15,0.5)",
+                    strokeColor: "rgba(242, 38, 19,0.5)",
+                    highlightFill: "rgba(242, 38, 22,0.75)",
+                    highlightStroke: "rgba(207, 0, 18,1)",
+                    data:  c3[2],
+                }
+            ]
+        } 
+          var options ={
+        	responsive:true,        	
+        	scaleShowVerticalLines: false,
+        	// scaleShowGridLines : false,
+        }  
+     
+           
+        var barc = document.getElementById('xchart').getContext('2d');
+        var newbarc = new Chart(barc).Bar(data,options);
+        document.getElementById('legend').innerHTML = newbarc.generateLegend();
+    }//end xc
+
+	function loadkinerja(){
+
+    var datekinerja = $('#date_kinerja').val();
+
+    if(datekinerja == ''){
+    	alert('Tanggal tidak boleh kosong..!');
+    	return false;
+    }else{
+
+            $.ajax({
+            url : baseurl+'app/load_kinerja',
+            data:{date:datekinerja},
+            dataType:'html',
+            type:'POST',
+            success:function(data){
+
+            	$('#lapharian').html(data)
+            	$("#masuk").attr("checked", true);
+            	var tb = $('#tbkinerja').dataTable({
+            			 "bSort": false ,
+            			 "bFilter": false,
+						 "responsive": true,
+						 "bInfo": false,
+						 "paging": false
+           			 	});
+            	 $('input[type="radio"]').click(function(){
+            	 	var tip ='';
+					    if($(this).attr("id")=="sakit"){
+					       var r= confirm("Yakin untuk mengisi uraian 'sakit' otomatis pada tabel kegiatan harian..!?"); 
+								if (r == true) {
+									tip='Sakit';
+								   $.ajax({
+								     type: 'POST',
+								     url: baseurl+'app/upkinerja',
+								     dataType: 'html',
+								     data:{tip:tip, tgl:datekinerja},
+								     success: function (dataret) {
+								     alert('tabel kegiatan harian telah diupdate');
+					     			 loadkinerja();
+								    
+								       }
+								    });
+								} else {
+								    return false;
+								}
+					    }
+					     if($(this).attr("id")=="izin"){
+					       var r= confirm("Yakin untuk mengisi uraian 'izin' otomatis pada tabel kegiatan harian..!?"); 
+								if (r == true) {
+									tip='Izin';
+								    $.ajax({
+								     type: 'POST',
+								     url: baseurl+'app/upkinerja',
+								     dataType: 'html',
+								     data:{tip:tip, tgl:datekinerja},
+								     success: function (dataret) {
+								     alert('tabel kegiatan harian telah diupdate');
+					     			 loadkinerja();
+								       
+								       }
+								    });
+								} else {
+								    return false;
+								}
+					    }
+					     if($(this).attr("id")=="libur"){
+					     	 var r= confirm("Yakin untuk mengisi uraian 'libur' otomatis pada tabel kegiatan harian..!?"); 
+								if (r == true) {
+									tip='Libur';
+								    $.ajax({
+								     type: 'POST',
+								     url: baseurl+'app/upkinerja',
+								     dataType: 'html',
+								     data:{tip:tip, tgl:datekinerja},
+								     success: function (dataret) {
+								     alert('tabel kegiatan harian telah diupdate');
+					     			 loadkinerja();
+								       
+								       }
+								    });
+								} else {
+								    return false;
+								}
+								 
+					    }
+					   
+								
+				  });
+				 	 $('#tbkinerja tr').click( function() {
+            	 	 var jam = $(this).find("td:first").html();      
+            	 	 var deskrip = $(this).find("td:nth-child(3)").html();        
+            	 	 var tempat = $(this).find("td:nth-child(4)").html();   
+            	 	 //&& deskrip!='Izin' && deskrip!='Sakit' && deskrip!='Libur'
+            	 	 	if(deskrip!='Istirahat'  &&  $('input[type="radio"]:checked').val()=='masuk' ){
+            	 	 	  $.fancybox.open({
+				     	 maxWidth	: 700,
+						 maxHeight	: 600,
+						 fitToView	: false,
+						 width		: '70%',
+						 height		: '60%',
+						 autoSize	: false,
+						 closeClick	: false,
+						 openEffect	: 'none',
+						 closeEffect	: 'none',
+						 href: baseurl+'app/popkinerja?d='+datekinerja+'&j='+jam,
+				         type: "ajax",
+					     });
+            	 	 }  
+				  } );
+	
+				  
+      
+
+            } 
+           });
+       }//end if     
+    }//end vdata
+
+function rkl(){
+	var iduser = $('.rek').data('i');
+	var tgl = $('.rek').data('t');
+	//alert(iduser);
+	//console.log(iduser);
+		  $.fancybox.open({
+				     	 maxWidth	: 1200,
+						 maxHeight	: 1200,
+						 fitToView	: false,
+						 width		: '90%',
+						 height		: '90%',
+						 autoSize	: false,
+						 closeClick	: false,
+						 openEffect	: 'none',
+						 closeEffect	: 'none',
+						 href: baseurl+'app/rklpup?d='+tgl+'&id='+iduser,
+				         type: "ajax",
+					     });
+}
+
+function print(){
+	var iduser = $('.rek').data('i');
+	var tgl = $('#bulan').val();
+
+	window.open(baseurl+'app/pdfkerja2/'+iduser+'/'+tgl, '_blank');
+}
+
+
+
+
+
+   function submitkinerja(){
+
+			   $('#kinerja_form').on('submit', function (e) {
+				     e.preventDefault();
+				     $.ajax({
+				     type: 'POST',
+				     url: baseurl+'app/upkinerja',
+				     dataType: 'html',
+				     data: $('#kinerja_form').serialize(),
+				     success: function (data) {
+				     alert('tabel kegiatan harian telah diupdate');
+	     			 $.fancybox.close();
+	     			 loadkinerja();
+				       
+				       }
+				    });
+
+				   });
+			    }//end submit solusi form
+			    
+
+ $(function() {
+      $('.summernote').summernote({
+   toolbar: [
+        //[groupname, [button list]]
+
+        ['style', ['bold', 'italic', 'underline', 'clear']],
+        ['color', ['color']],
+        ['para', ['ul', 'ol', 'paragraph']],
+        ['fontsize', ['fontsize']],
+       
+    ],
+        height: 100
+     	 });
+      });
+
+
+$(document).ready(function() {
+
+
+	//validator
+	LoadBootstrapValidatorScript(chpassValidator);	
+	LoadFancyboxScript(fancy);
+	// Initialize datepicker
+
+	// Load Timepicker plugin
+	LoadTimePickerScript(AllTimePickers);
+	// Load required scripts and draw graphs
+
+	LoadDataTablesScripts(AllTables);
+	// Add Drag-n-Drop feature
+
+     
+
+
+	
+	$('#saveticket').on("click",function() { 
+        var imgVal = document.getElementById('file'); 
+        var file = $('#file')[0].files[0];
+		alert(imgVal+"-"+file);
+        if(typeof file == 'undefined') 
+        { 
+           var r= confirm("Yakin tidak melampirkan gambar..!?"); 
+			if (r == true) {
+			    return true;
+			} else {
+			    return false;
+			}
+            
+        }else{
+        	   var fsize = file.size;
+				var ftype =file.type;
+				var fnama =file.name;
+        	 switch(ftype)
+		        {
+		            case 'image/jpeg':
+		            case 'image/jpg':
+		            case 'image/JPG':
+		            case 'image/JPEG':
+		                if(fsize > 5242880){
+							alert('Maksimal upload gambar 5Mb..!');
+							document.getElementById('file').outerHTML = imgVal.outerHTML;
+							 return false;
+						  }else{
+						  	 return true;
+						  }
+		                break;
+		            default:
+		                alert('Format gambar hanya jpg/jpeg..!');
+		             	 document.getElementById('file').outerHTML = imgVal.outerHTML;
+		                 return false;
+		        
+		    }
+        }
+       
+
+    }); //end submit
+
+
+	
+//xc();
+
+
+});
+
+
+    
+</script>
+<script type="text/javascript">
+
+     $(function(){
+	
+	/* $('#abc').combobox({  
+			panelWidth:700,    			
+			url:baseurl+'app/coba', 
+			idField:'kode_bulan',  
+			textField:'kode_bulan',  
+			mode:'remote',         
+			//url:'<?php echo base_url(); ?>app/coba',
+			columns:[[  
+			   {field:'kode_bulan',title:'Kode Bulan',width:100},  
+			   {field:'nama_bulan',title:'Nama Bulan',width:250},   
+			]],  
+			onSelect:function(rowIndex,rowData){
+			   cuskpd 	  = rowData.kode_bulan; 
+			   ckd_lokasi = rowData.nama_bulan;                                 
+			} 
+		 }); */
+	 });
+</script>
+<script src="<?php echo base_url();?>assets/js/ex-editable.js"></script>
+
+<script src="<?php echo base_url();?>assets/js/library.js"></script>
+<script src="<?php echo base_url();?>assets/js/mainscript.js"></script>
+
+
+
+
+
+</body
+</html>
+
+
+

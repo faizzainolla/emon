@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title><?php echo $title;?></title>
+
+  <style type="text/css">
+@page {
+  margin: 1cm 1cm 0cm 1cm ;
+}
+body {
+  font-family: sans-serif;
+  margin: 2cm 0;
+  text-align: justify;
+}
+#header,
+#footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  color: #aaa;
+  font-size: 0.7em;
+}
+#header {
+  top: 0;
+  border-bottom: 0.1pt solid #aaa;
+}
+#footer {
+  bottom: 0;
+  border-top: 0.1pt solid #aaa;
+}
+
+
+
+.page-number {
+  text-align: left;
+}
+.page-number:after {
+
+  content: "Halaman " counter(page);
+}
+ .table {
+color: #333; /* Lighten up font color */
+font-family: Helvetica, Arial, sans-serif; /* Nicer font */
+width: 640px;
+border-collapse:
+collapse; border-spacing: 0; 
+border: 1px solid #CCC
+}
+ .d {
+
+border: none;
+}
+
+
+.th { border: 1px solid #CCC; height: 30px; } /* Make cells a bit taller */
+
+.th {
+background: #F3F3F3; /* Light grey background */
+font-weight: bold; /* Make sure they're bold */
+
+}
+
+.td {
+background: #FAFAFA; /* Lighter grey background */
+text-align: center; /* Center our text */
+
+}
+
+ 
+    .short{
+      width: 50px;
+    }
+ 
+    .normal{
+      width: 150px;
+    }
+
+ .cn{
+    top:12px;
+    left: 60px;
+    position: fixed;
+    font-size: 1em;
+    color: #215;
+    font-weight: bold;
+
+  }
+    .ca{
+    top:25px;
+    left: 60px;
+    position: fixed;
+    font-size: 0.8em;
+  }
+   .ct{
+    top:35px;
+    left: 60px;
+    position: fixed;
+    font-size: 0.8em;
+  }
+    .hed{
+   
+    font-size: 0.7em;
+    font-weight: bold;
+
+  }
+
+   
+
+  </style>
+</head>
+<body>
+<div id="header">
+    <img src="<?php echo site_url()?>assets/img/msm.png" width='50px' style="margin-top:10px;"/>
+    <div class="cn">MSM Consultant</div>
+    <div class="ca">Jln. T. Nyak Arief No.160 Jeulingke - Banda Aceh</div>
+    <div class="ct">Telp / Fax : (0651) 7555559  | Email : qa.msmaceh@gmail.com | Website : www.msmaceh.com </div>
+    <div>&nbsp;</div>
+   
+</div>
+ 
+  <div class="hed"> 
+   <?php 
+    function conv_bulan($bulan){
+  switch ($bulan){
+  case 1: return "Januari"; break;
+  case 2: return "Februari"; break;
+  case 3: return "Maret"; break;
+  case 4: return "April"; break;
+  case 5: return "Mei"; break;
+  case 6: return "Juni"; break;
+  case 7: return "Juli"; break;
+  case 8: return "Agustus"; break;
+  case 9: return "September";break;
+  case 10: return "Oktober"; break;
+  case 11: return "November"; break;
+  case 12: return "Desember"; break;
+  }
+  }//end conv_bulan
+
+   function conv_hari($hari){
+  switch ($hari){
+  case "Sunday" : return "Minggu"; break;
+  case "Monday" : return "Senin"; break;
+  case "Tuesday"  : return "Selasa"; break;
+  case "Wednesday": return "Rabu"; break;
+  case "Thursday" : return "Kamis"; break;
+  case "Friday" : return "Jum'at"; break;
+  case "Saturday" : return "Sabtu"; break;
+
+  }
+  }//end conv_hari
+    function conv_jab($jab){
+  switch ($jab){
+  case "AD" : return "Management"; break;
+  case "1" : return "Helpdesk"; break;  
+  case "2" : return "Asisten Programmer"; break;
+  case "3" : return "Koordinator"; break;
+  case "4": return "Implementator"; break;
+  case "5" : return "Junior Supervisor Programmer"; break;
+  case "6" : return "Residen Consultant"; break;
+  case "7" : return "ADM Tender"; break;
+  case "8" : return "Bendahara"; break;
+  case "9" : return "Sekretaris"; break;
+  case "10" : return "Programmer"; break;
+  case "11" : return "Akuntan"; break;
+  case "12" : return "Projek Manager"; break;
+
+  }
+  }//end conv_hari
+   $r = $q1->row_array();
+   $dat = $qx->row_array();
+   $p = date('m', strtotime($r['rtgl']));
+   $priode=conv_bulan($p);
+   $jabatan=conv_jab($dat['jab']);
+   $tglctk=date(d)." ".conv_bulan(date(m))." ".date(Y);
+   ?>
+  <table>
+    <tr>
+      <td>
+        Nama <br>
+        Wilayah Kerja<br>
+        Priode
+      </td>
+      <td>
+         :<br>
+         :<br>
+         :
+      </td>
+      <td>
+        <?php 
+          echo $dat['nama']."<br>".$dat['wil']."<br>".$priode
+        ?>
+      </td>
+    </tr>
+  </table>
+  </div>
+  <div>&nbsp;</div>
+  <hr/>
+
+  <?php 
+
+     // $tr='';
+     // $tl='';
+    foreach ($q1->result_array() as $r) {
+        $id=$r['id'];
+        $tanggal=$r['rtgl'];
+        $t = date('d', strtotime($tanggal));
+        $y = date('Y', strtotime($tanggal));
+        $m = date('m', strtotime($tanggal));
+        $bulan=conv_bulan($m);
+        $d = date('l', strtotime($tanggal));
+        $hari=conv_hari($d);
+      $tb ="
+      <b style='font-size:11px;'>Hari / Tanggal : ".$hari.", ".$t." ".$bulan." ".$y."</b><br>
+          <table style='font-size:11px;width:100%;' 
+           class='table' >
+                <thead style='background-color: #e5e5e5;'>
+                  <tr>
+                    <th width='12%'>Jam</th>
+                    <th width='3%' style='text-align:center'>S</th>
+                    <th width='60%'>Uraian Kegiatan</th>
+                    <th>Tempat</th>
+                    <th width='10%'>Jam Lembur</th>
+                    <th width='3%'>S</th>
+                  </tr>
+                </thead>
+                <tbody>";
+         $query2=$this->db->query(" SELECT a.user_name, a.jam_kerja,a.jlh_kerja,a.jam_lembur, 
+         a.jlh_lembur, a.tempat, a.deskripsi,  b.nm_wilayah
+         FROM e_kinerja a LEFT JOIN ms_wilayah b ON a.tempat = b.kd_wilayah
+         where a.user_name='$id' and a.tgl='$tanggal' ");
+         $tjk='';
+         $tjl='';
+                 foreach ($query2->result_array() as $row) {
+                if($row['deskripsi']=='Istirahat'){
+                  $tdc="style='background-color: #e5e5e5;'";
+                }else{
+                  $tdc="";
+                }
+                 if($row['jlh_lembur']>=6){
+                  $lemb=$row['jlh_lembur']-1;
+                  $lembur=$row['jlh_lembur']."-1";
+                }else{
+                  $lemb=$row['jlh_lembur'];
+                  $lembur=$row['jlh_lembur'];
+                }
+
+                $tjk=$tjk+$row['jlh_kerja'];
+                $tjl=$tjl+$lemb;
+                $tb .="<tr  ".$tdc.">";
+                $tb .="<td style='border: 1px solid #CCC'>".$row['jam_kerja']."</td>";
+                $tb .="<td style='border: 1px solid #CCC;text-align:center'>".$row['jlh_kerja']."</td>";
+                $tb .="<td style='border: 1px solid #CCC'>".$row['deskripsi']."</td>";
+                $tb .="<td style='border: 1px solid #CCC'>".$row['nm_wilayah']."</td>";
+                $tb .="<td style='border: 1px solid #CCC'>".$row['jam_lembur']."</td>";
+                $tb .="<td style='border: 1px solid #CCC;text-align:center'>".$lembur."</td>";
+                $tb .="</tr>";
+               
+                }       
+                      
+                $tb .="<tr style='background-color: #CCC;font-weight:bold'>";
+                $tb .="<td style='border: 1px solid #CCC'> Total Jam Kerja</td>";
+                $tb .="<td style='border: 1px solid #CCC;text-align:center'>".$tjk."</td>";
+                // $tb .="<td style='border: 1px solid #CCC'></td>";
+                $tb .="<td  colspan='3' style='border: 1px solid #CCC;text-align:center'>
+                Total Jam Lembur (dihitung setiap  >=6jam -1jam istirahat)  </td>";
+               
+                $tb .="<td style='border: 1px solid #CCC;text-align:center'>".$tjl."</td>";
+                $tb .="</tr>";
+                $tr= $tr+$tjk;    
+                $tl= $tl+$tjl;    
+    $tb .="  </tbody>
+           </table>
+            <div>&nbsp;</div>
+           <hr/>
+
+         ";
+    
+           echo $tb;
+        }
+        $ej=160;
+        $tj=$tr + $tl;
+        $trl=($tr + $tl) - $ej;
+        $tb2 ="
+            <table width='100%' style='border:0;font-size:11px' class='d'>
+            <tr>
+            <th width='18%' style='text-align:left'>  
+            1. Total Reguler<br>
+            2. Total Lembur<br>
+            3. Total Jam (1+2)<br>
+            4. Efektif Jam<br>
+            5. Total Lembur (1+2)-4
+            </th>
+            <th width='1%' style='text-align:right'>
+            : <br>
+            : <br>
+            : <br>
+            : <br>
+            : <br>
+            </th>
+            <th width='4%' style='text-align:right'>
+             ".$tr." <br>
+             ".$tl." <br>
+             ".$tj." <br>
+             ".$ej." <br>
+             ".$trl." <br>
+            </th>
+            <th width='6%'>            </th>
+            <th><br>Wakil Kepala Cabang
+            <br><br><br><br><br><br>
+            Taufik S. Prabowo
+
+            </th>
+            <th><br>Koordinator Lapangan
+            <br><br><br><br><br><br>
+            ".$dat['koor']."
+            </th>
+            <th width='35%'>".$dat['wil'].",  ".$tglctk."<br>
+            ".$jabatan."
+            <br><br><br><br><br><br>
+            ".$dat['nama']."
+
+            </th>
+
+            </tr>
+
+            </table>
+
+
+
+    ";
+    echo $tb2;
+       ?>
+
+       <div id='footer'>
+          <div >
+           
+
+          </div>
+       </div>
+
+</body>
+</html>

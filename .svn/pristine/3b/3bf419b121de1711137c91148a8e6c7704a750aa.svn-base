@@ -1,0 +1,823 @@
+<?php if(!defined('BASEPATH')) exit('Hacking Attempt : Keluar dari sistem..!!');
+
+    class M_data extends CI_Model {
+        public function __construct() {
+            parent::__construct();
+        }
+
+    
+public function data_monitoring($kdwil=null,$kdsys=null){
+ 
+
+$query=$this->db->query("SELECT a.id, upper(a.title) AS Menu, a.url,a.LEVEL,a.parent_id,a.kd_wilayah,a.kd_sistem, a.last_update,b.kd_system, b.nm_system AS nmsys,c.nm_wilayah AS nmwil FROM ms_menu a INNER JOIN ms_system b ON a.kd_sistem = b.kd_system 
+INNER JOIN ms_wilayah c ON a.kd_wilayah = c.kd_wilayah WHERE a.kd_sistem = '$kdsys' AND c.kd_wilayah ='$kdwil' AND LEVEL='1'
+UNION ALL
+SELECT a.id, upper(a.title) AS Menu, a.url,a.LEVEL,a.parent_id,a.kd_wilayah,a.kd_sistem, 
+a.last_update,b.kd_system, b.nm_system AS nmsys,c.nm_wilayah AS nmwil FROM ms_menu a INNER JOIN ms_system b ON a.kd_sistem = b.kd_system 
+INNER JOIN ms_wilayah c ON a.kd_wilayah = c.kd_wilayah WHERE a.kd_sistem = '$kdsys' AND c.kd_wilayah ='$kdwil' AND LEVEL='2'
+UNION ALL
+SELECT a.id, upper(a.title) AS Menu, a.url,a.LEVEL,a.parent_id,a.kd_wilayah,a.kd_sistem, 
+a.last_update,b.kd_system, b.nm_system AS nmsys,c.nm_wilayah AS nmwil FROM ms_menu a INNER JOIN ms_system b ON a.kd_sistem = b.kd_system 
+INNER JOIN ms_wilayah c ON a.kd_wilayah = c.kd_wilayah WHERE a.kd_sistem = '$kdsys' AND c.kd_wilayah ='$kdwil' AND LEVEL='3'
+UNION ALL
+SELECT a.id, upper(a.title) AS Menu, a.url,a.LEVEL,a.parent_id,a.kd_wilayah,a.kd_sistem, 
+a.last_update,b.kd_system, b.nm_system AS nmsys,c.nm_wilayah AS nmwil FROM ms_menu a INNER JOIN ms_system b ON a.kd_sistem = b.kd_system 
+INNER JOIN ms_wilayah c ON a.kd_wilayah = c.kd_wilayah WHERE a.kd_sistem = '$kdsys' AND c.kd_wilayah ='$kdwil' AND LEVEL='4'
+ORDER BY id");
+
+    //return $query->result_array();
+    if($query->num_rows() >0 ){
+    $v = "<table style='font-size:11px;' style='display:none' 
+     class='table table-bordered table-striped table-hover table-heading table-datatable' id='datatable-4'>
+          <thead style='background-color: #e5e5e5;'>
+            <tr>
+              <th>Nama Modul</th>
+              <th>Kode / Nama System</th>
+              <th>Nama Wilayah</th>
+              <th>Link</th>
+              
+              <th>Tanggal Perbaikan</th>
+              <th>Log Hostory</th>              
+            </tr>
+          </thead>
+          <tbody>";
+         
+         foreach ($query->result_array() as $row)
+          { 
+
+            if($row['url']==''){
+              $viewfitur ='';
+              $viewlog ='';
+              $bold ='<b>';
+              $tglfix ='';
+
+            }else{
+              $viewlog="<a class='log fancybox.ajax'  
+                    style='cursor: -webkit-zoom-in; cursor: -moz-zoom-in;text-decoration:none;'
+                    data-id='".$row['id']."_".$row['kd_wilayah']."_".$row['kd_system']."'>View log</a>";  
+              // $viewlog="<a class='log fancybox.ajax' 
+              //      style='cursor: -webkit-zoom-in; cursor: -moz-zoom-in;text-decoration:none;'  
+              //      data-id='".$row['id']."'>View Log</a>";
+              $bold='';
+              $tglfix=$row['last_update'];
+              }
+
+            if($row['LEVEL']=='1' ){
+              $spasi='&nbsp;';
+              }
+            if($row['LEVEL']=='2' ){
+              $spasi='&nbsp;&nbsp;&nbsp;&nbsp;';
+              }
+            if($row['LEVEL']=='3'){
+              $spasi='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+              }
+            if($row['LEVEL']=='4'){
+              $bold='';
+              $spasi='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+              }
+          
+          $v .="<tr>";
+				  $v .="<td>".$bold.$spasi.$row['Menu']."</td>";
+				  $v .="<td>[".$row['kd_sistem']."]".$row['nmsys']."</td>";
+				  $v .="<td>".$row['nmwil']."</td>";
+				  $v .="<td>".$bold.$row['url']."</td>";
+				  $v .="<td>".$tglfix."</td>";
+				  $v .="<td>".$viewlog."</td>"; 
+          $v .="</tr>";
+           }
+              
+          
+          $v .="  </tbody>
+               </table>";
+          echo $v;
+
+      }else{
+        echo "<center> <h5>Tidak ada data dengan kriteria filter, periksa kembali pilihan filter diatas..!</h5> </center>";
+      }
+
+    }//end data_monitoring
+
+    public function maxid() {
+    $this->db->select_max('id');
+    $Q = $this->db->get('ms_req');
+    $row = $Q->row_array();
+    return $row;
+    }
+
+    function request(){
+       $query=$this->db->query("
+         SELECT a.id, a.link_modul AS modul,DATE_FORMAT(a.tgl_req,'%d %b %Y %T') AS tglreq, a.uraian, a.prioritas, a.ta, 
+          DATE_FORMAT(a.tgl_selesai,'%d %b %Y %T') AS tgl_selesai, IF(a.tgl_selesai='','-',TIMEDIFF(a.tgl_selesai,a.tgl_req)) AS selisih, a.status, a.tgl_verifikasi, a.statusver, a.user_verifikasi,a.image, a.jns_req, a.ket_fitur,
+          a.kd_wilayah, a.`kd_system`,
+          IF(a.ta='0','Kosong',d.nm_lengkap) AS nama, a.id_menu,b.nm_system AS nmsys,
+          c.nm_wilayah AS nmwil FROM ms_req a INNER JOIN ms_system b ON a.kd_system = b.kd_system
+          INNER JOIN ms_wilayah c ON a.kd_wilayah = c.kd_wilayah 
+          LEFT JOIN ms_user d ON d.user_name=a.ta WHERE a.statusver ='1' ORDER BY a.id DESC");
+
+
+      $tabel ='';
+
+          foreach($query->result_array() as $resulte)
+        {
+
+     
+       $coljnsreq='';
+        if($resulte['jns_req']=='1'){
+                $coljnsreq="<center><i class='icon-exclamation-sign ' style='color:red;font-size:14px'></i></center>";
+                }
+                if($resulte['jns_req']=='2'){
+                $coljnsreq="<center><i class='icon-plus' style='color:blue;font-size:14px'></i></center>";
+                }
+                if($resulte['jns_req']=='3'){
+                $coljnsreq="<center><i class='icon-plus-sign' style='color:green;font-size:14px'></i></center>";
+                }
+
+       $kd_wilayah=$this->session->userdata('kd_wil');
+       $cek=$this->session->userdata('jabatan');
+
+       if($cek =='3' or $cek =='4'){
+          if($resulte['status']=='1'){
+              $colkoor='Belum dikerjakan';
+              $colact='Belum Selesai';
+
+          }else{
+              $colact='Sudah Selesai';
+
+              if($resulte['kd_wilayah']<>$kd_wilayah){
+                    $colkoor='Otoritas Koor Daerah';
+              }else{
+                  $colkoor="<a href='#' class='statver'  data-name='statver' data-type='select'  
+                  data-pk='".$resulte['id']."_".$resulte['id_menu']."_"
+                  .$resulte['jns_req']."_".$resulte['kd_system']."_".$resulte['kd_wilayah']."'
+                  data-value='".$resulte['statusver']."'></a>";
+              }
+          }
+
+         
+          $colta = $resulte['nama'];
+          
+
+       }else{
+          $colkoor='Otoritas Koor';
+          $colta ="<a href='#' class='ta'  data-name='user' data-type='select'  data-pk='".$resulte['id']."' data-value='".$resulte['ta']."'></a>";
+          if($resulte['ta']=='0'){
+            $colact='Butuh Tenaga Ahli';
+          }else{
+          $colact="<a href='#' class='statreq'  data-name='statreq' data-type='select' data-jns='".$resulte['jns_req']."'  data-pk='".$resulte['id']."' data-value='".$resulte['status']."'></a>";
+          }
+       }
+
+       if($resulte['image']==''){
+        $colimg="<i class='icon-picture ' style='font-size:14px'></i>";
+       }else{
+        $colimg="<a class='single' href='../screenshoot/".$resulte['image']."' >
+        <i class='icon-picture ' style='color:blue;font-size:14px'></i></a>";
+       }
+
+
+
+
+           $tabel .="<tr>
+                      <td>".$resulte['nmwil']."</td>
+                      <td>".$resulte['nmsys']."</td>
+                      <td>".$resulte['tglreq']."</td>
+                      <td>".$coljnsreq."</td>";
+            $tabel .="<td>".$colta."</td>";
+            $tabel .="<td>".$colact."</td>";
+            $tabel .="<td>".$resulte['tgl_selesai']."</td>";
+            $tabel .="<td>".$resulte['selisih']."</td>";
+             $tabel .="<td>".$colkoor."</td>";
+            $tabel .="<td><a class='vdetail fancybox.ajax' style='cursor: -webkit-zoom-in; cursor: -moz-zoom-in;text-decoration:none;' 
+            data-id='".$resulte['id']."' data-toggle='tooltip' title='&nbsp;&nbsp;view detail&nbsp;&nbsp; '>
+            <i class='icon-eye-open ' style='color:blue;font-size:14px'></i></a>&nbsp;&nbsp; "
+                      .$colimg."</td>
+
+            </tr>";
+         }
+ 
+    
+
+       echo $tabel;
+
+
+
+    }
+
+	public function track() {  
+	
+	 $query=$this->db->query("select * from (
+			select ('1') as nomor,a.kd_area,a.kd_area as kode,a.nm_area as area,'' as nm_sistem,to_timestamp(2017-03-10) as tgl_terima,'' as jenis_data,'' as kapasitas,'' as status,'' as keterangan,'' as detail
+			from ms_area a join e_monitor b on a.kd_area=b.kd_area GROUP BY a.kd_area
+
+			UNION
+
+			select ('2') as nomor,a.kd_area,a.kd_subarea as kode,upper(a.nm_subarea) as area,'' as nm_sistem,to_timestamp(2017-03-10) as tgl_terima,'' as jenis_data,'' as kapasitas,'' as status,'' as keterangan,'' as detail 
+			from ms_area_sub a join e_monitor b 
+			on a.kd_area=b.kd_area and a.kd_subarea=b.kd_subarea GROUP BY a.kd_subarea
+
+			UNION 
+
+			select ('3') as nomor,a.kd_area,a.kd_subarea as kode,b.nm_subarea as area,
+			c.nm_sistem,a.tgl_terima,a.jenis_data,a.kapasitas,a.status,a.keterangan,'' as detail 
+			from e_monitor a 
+			join ms_area_sub b on a.kd_area=b.kd_area and a.kd_subarea=b.kd_subarea 
+			join ms_sistem c on a.kd_sistem=c.kd_sistem
+
+			)x ORDER BY kd_area ASC,kode ASC,nomor ASC");
+	
+		$tabel ='';
+          foreach($query->result_array() as $resulte)
+        {
+		if($resulte['nomor']=='1'){
+		  $bold='<b>';
+		  $spasi='';
+		  $bold2='</b>';
+		  $tgl= '';
+		  $area=$resulte['area'];
+		}
+		if($resulte['nomor']=='2'){
+		  $bold='<b>';
+		  $spasi='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+		  $bold2='</b>';
+		  $tgl= '';
+		  $area=$resulte['area'];
+		  }
+		if($resulte['nomor']=='3'){
+		  $bold='';
+		  $spasi='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+		  $bold2='';
+		  $tgl= $this->TanggalIndo($resulte['tgl_terima']);
+		  $area='';
+		  }
+		    $tabel .="<tr>
+                      <td>".$bold.$spasi.$area.$bold2."</td>
+                      <td>".$resulte['nm_sistem']."</td>
+                      <td>".$tgl."</td>
+                      <td>".$resulte['jenis_data']."</td>";
+            $tabel .="<td>".$resulte['kapasitas']."</td>";
+            $tabel .="<td>".$resulte['status']."</td>";
+            $tabel .="<td>".$resulte['keterangan']."</td>
+					  <td>".$resulte['detail']."</td>
+
+            </tr>";
+         }
+	    echo $tabel;
+    }
+	
+	function TanggalIndo($date){
+		$BulanIndo = array("Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember");
+
+		$tahun = substr($date, 0, 4);
+		$bulan = substr($date, 5, 2);
+		$tgl   = substr($date, 8, 2);
+
+		$result = $tgl . " " . $BulanIndo[(int)$bulan-1] . " ". $tahun;		
+		return($result);
+	}
+	
+    public function getWilArr()
+    {
+    $this->db->select('*');
+    $q = $this->db->get('ms_wilayah');
+    return $q->result_array();
+    }//end get data 
+	
+	public function getMsWil($id)
+    {
+	$where="";
+	if($id<>''){$where="where a.kd_wilayah='$id'";}else{$where="where a.kd_wilayah=''";}
+     $q=$this->db->query("select a.*,b.nm_subarea as nm_area
+						from ms_wilayah a 
+						join ms_area_sub b 
+						on a.kd_area=b.kd_area and a.kd_subarea=b.kd_subarea $where");
+		return $q->result_array();
+    }
+
+	public function getMsWilGrid($id)
+    {
+	
+	if($id<>''){$where="where a.kd_wilayah='$id'";}else{$where="where a.kd_wilayah=''";}
+     $q=$this->db->query("select a.*,b.nm_subarea as nm_area from ms_wilayah a join ms_area_sub b on a.kd_area=b.kd_area and a.kd_subarea=b.kd_subarea");
+		return $q->result_array();
+    }
+    public function getProp()
+    {
+		$this->db->select('*');
+		$q = $this->db->get('ms_propinsi');
+		return $q->result_array();
+    }//end get data 
+	
+	 public function getKab()
+    {
+		$this->db->select('*');
+		$q = $this->db->get('ms_kabupaten');
+		return $q->result_array();
+    }//end get data 
+	
+	    public function getArea()
+    {
+		$this->db->select('*');
+		$q = $this->db->query('select * from ms_area order by kd_area');//$this->db->get('ms_area');
+		return $q->result_array();
+    }//end get data 
+	
+	 public function getAreaSub()
+    {
+		$this->db->select('*');
+		$q = $this->db->query('select * from ms_area_sub order by kd_area');//$this->db->get('ms_area');
+		return $q->result_array();
+    }//end get data 
+	
+    public function getSis()
+    {
+     $q=$this->db->query("SELECT * FROM ms_sistem");
+    return $q->result_array();
+    }
+	
+    public function getMod($kd_area,$kd_sistem)
+    {
+     $q=$this->db->query("SELECT a.*,b.nm_sistem FROM ms_modul a join ms_sistem b on a.kd_sistem=b.kd_sistem where a.kd_subarea='$kd_area' and a.kd_sistem='$kd_sistem' order by a.id_modul");
+    return $q->result_array();
+    }
+    public function getSysArr($ls)
+    {
+     $q=$this->db->query("SELECT * FROM ms_sistem WHERE kd_sistem IN ($ls) order by kd_wil asc");
+    return $q->result_array();
+    }//end get data 
+
+    public function getMax($kolom,$tabel)
+    {
+     $query=$this->db->query("select max($kolom) as max from $tabel");
+      return $query->row_array();
+    }
+
+    public function getMaxSis($kolom,$tabel)
+    {
+     $query=$this->db->query("select max(right($kolom,4)) as max from $tabel");
+      return $query->row_array();
+    }
+	
+    public function getWil($kd)
+    {
+    $this->db->select('*');
+    $this->db->where('kd_wilayah',$kd);
+    $q = $this->db->get('ms_wilayah');
+    return $q->row_array();
+    }//end get data 
+
+    public function getreq($id)
+    {
+    $this->db->select('*');
+    $this->db->where('id',$id);
+    $q = $this->db->get('ms_req');
+    return $q->row_array();
+    }//end get data 
+
+    public function InData($tb,$data){ 
+    $this->db->insert($tb, $data);
+    }//end insert 
+	
+	public function UpData($tb,$kolom,$isi,$kolom2,$isi2){ 
+    $this->db->set($kolom,$isi);
+    $this->db->where($kolom2,$isi2);
+    $q = $this->db->update($tb); 
+    }
+	
+    public function getWchild($id)
+    {
+	
+	if($id<>''){$where="where a.kd_wilayah='$id'";}else{$where="where a.kd_wilayah=''";}
+
+     $q=$this->db->query("SELECT a.* FROM ms_wilayah_child a
+	 join ms_wilayah b on a.kd_area=b.kd_area and a.kd_subarea=b.kd_subarea $where");
+    return $q->result_array();
+    }
+	public function InCildSis($post){
+	
+	$kd_wilayah		= htmlspecialchars($post['kdwil'], ENT_QUOTES);
+	$kd_propinsi	= htmlspecialchars($post['kdprop'], ENT_QUOTES);
+	$kd_kabupaten	= htmlspecialchars($post['kdkab'], ENT_QUOTES);
+	$item			= htmlspecialchars($post['chil'], ENT_QUOTES);
+	$itemx  		= explode('||',$item);
+	$noauto	= 0;
+	
+			for($i=0;$i<count($itemx);$i++){
+				$f=$this->db->query("insert into ms_wilayah_child values ('".$kd_wilayah."','".$kd_propinsi."','".$kd_kabupaten."','".$itemx[$i]."','')");
+				if($f){
+					$this->db->query("update ms_wilayah_child a set a.nm_sistem=b.nm_sistem join ms_sistem b on a.kd_sistem=b.kd_sistem where a.nm_sistem=''");
+				}
+			}
+
+
+	}
+
+	
+	public function InWilayah($post){
+	$kd_wilayah		= htmlspecialchars($post['kode_wilayah'], ENT_QUOTES);
+	$kd_area		= htmlspecialchars($post['kode_prop'], ENT_QUOTES);
+	$kd_subarea		= htmlspecialchars($post['kode_kab'], ENT_QUOTES);
+	$nm_area		= '';//htmlspecialchars($post['nm_area'], ENT_QUOTES);
+	$nama_pic		= htmlspecialchars($post['nama_pic'], ENT_QUOTES);
+	$jabatan_pic	= htmlspecialchars($post['jabatan_pic'], ENT_QUOTES);
+	$cp_pic			= htmlspecialchars($post['cp_pic'], ENT_QUOTES);
+	$list_system	= $post['nm_sistem'];
+	$keterangan		= htmlspecialchars($post['keterangan'], ENT_QUOTES);
+	$list			= implode(',',$post['nm_sistem']);
+	$itemx  		= ($post['nm_sistem']);
+	$noauto	= 0;
+		
+		$zx=$this->db->query("delete from ms_wilayah where kd_area='$kd_area' and kd_subarea='$kd_subarea'");
+		if($zx){
+		$z=$this->db->query("insert into ms_wilayah values ('".$kd_wilayah."','".$kd_area."','".$kd_subarea."','".$nm_area."','".$nama_pic."','".$jabatan_pic."','".$cp_pic."','".$list."','".$keterangan."')");
+		}
+		if($z){
+			$fx=$this->db->query("delete from ms_wilayah_child where kd_area='$kd_area' and kd_subarea='$kd_subarea'");
+		}
+			if($fx){
+				for($i=0;$i<count($itemx);$i++){
+					$f=$this->db->query("insert into ms_wilayah_child values ('".$kd_wilayah."','".$kd_area."','".$kd_subarea."','".substr($itemx[$i],0,8)."','".substr($itemx[$i],9,strlen($itemx[$i]))."')");
+				}
+			}
+
+	}
+	
+	function all_sistem($post){
+	
+	$kd_wilayah		= htmlspecialchars($post['kd_wilayah'], ENT_QUOTES);
+	$kd_propinsi	= htmlspecialchars($post['kd_propinsi'], ENT_QUOTES);
+	$kd_kabupaten	= htmlspecialchars($post['kd_kabupaten'], ENT_QUOTES);
+	
+	$q= $this->db->query("select * from ms_sistem");
+	if($q->num_rows()>0){
+		$tabel="<table style='font-size:12px;' style='display:none' 
+                   class='table table-bordered table-striped table-hover table-heading table-datatable' id='datatable-22'>
+                        <thead style='background-color: #e5e5e5;'>
+                          <tr>
+                            <th style='align:center;width:10px;' >Kode</th>
+                            <th>Sistem</th>
+                            <th class='text-center' width='10%'></th>
+                          </tr>
+                        </thead>
+                        <tbody>";
+						foreach($q->result_array() as $resulte){
+			$tabel .="<tr>
+						  <td class='text-center' width='10%'><input class='hide' type='text' name='kd_sis' id='kd_sis' value=".$resulte['kd_sistem'].">".$resulte['kd_sistem']."</td>
+						  <td><input class='hide' type='text' name='nm_sis' id='nm_sis' value=".$resulte['nm_sistem'].">".$resulte['nm_sistem']."</td>
+						  <td><input type='checkbox' name='item[]' id='item' value=".$resulte['nm_sistem']."></td>
+					</tr>";
+						}
+																
+
+		$tabel .= "</tbody>
+               </table>";
+		$tabel .= "
+		<div class='hide'>
+			  <input type='text' value='".$kd_wilayah."' name='kd_wilayah' id='kd_wilayah'>
+			  <input type='text' value='".$kd_propinsi."' name='kd_propinsi' id='kd_propinsi'>
+			  <input type='text' value='".$kd_kabupaten."' name='kd_kabupaten' id='kd_kabupaten'>
+		</div>";	   
+		echo $tabel;
+	}else{
+		echo "<center> <h5>Tidak ada data dengan kriteria filter, periksa kembali pilihan filter diatas..!</h5> </center>";
+
+	}
+}
+	
+    public function getAllUser()
+    {
+     $query=$this->db->query("SELECT a.id_user,a.user_name, a.nm_lengkap,a.jabatan, a.status, 
+								b.nm_wilayah, b.kd_wilayah
+								FROM ms_user a INNER JOIN v_wilayah b 
+								ON a.kd_wilayah=b.kd_wilayah 
+								WHERE user_name is not null");
+      return $query->result_array();
+    }//end get all data user
+    
+    public function upstatuser($id,$status)
+    {
+    $this->db->set('status', $status);
+    $this->db->where('user_name',$id);
+    $q = $this->db->update('ms_user');   
+    }
+
+    public function upstatreq($id,$status,$date)
+    {
+    $this->db->set('status', $status);
+    $this->db->set('tgl_selesai',$date);
+    $this->db->where('id',$id);
+    $q = $this->db->update('ms_req');   
+    }
+
+    public function upta($id,$user)
+    {
+    $this->db->set('ta', $user);
+    $this->db->where('id',$id);
+    $q = $this->db->update('ms_req');   
+    }
+
+    public function upstatver($id,$status,$date,$user)
+    {
+    $this->db->set('statusver', $status);
+    $this->db->set('tgl_verifikasi',$date);
+    $this->db->set('user_verifikasi',$user);
+    $this->db->where('id',$id);
+    $q = $this->db->update('ms_req'); 
+
+    }
+
+    public function lastupmenu($date,$idmenu,$wil,$sys){
+    $this->db->set('last_update',$date);
+    $this->db->where('id',$idmenu);
+    $this->db->where('kd_wilayah',$wil);
+    $this->db->where('kd_sistem',$sys);
+    $q = $this->db->update('ms_menu'); 
+
+    }
+
+    public function addfitur($data){
+      $this->db->insert('ms_fitur', $data);
+
+    }
+
+    public function cek_pass($id,$passold){
+  //cek password 
+   $this->db->select('*');
+                $this->db->from('ms_user');
+                $this->db->where('password', $passold);
+                $this->db->where('user_name', $id);
+                $query = $this->db->get();
+    
+     return $query;
+   }
+   
+   public function up_pass($id,$passnew){ 
+   
+        $this->db->set('password', $passnew);
+        $this->db->where('user_name', $id);
+        $this->db->update('ms_user');
+  
+   }
+
+
+
+
+public function lapmon($kdwil=null,$kdsys=null){
+ 
+
+$query=$this->db->query("SELECT a.id, upper(a.title) AS Menu, a.url,a.LEVEL,a.parent_id,a.kd_wilayah,a.kd_sistem, a.last_update,b.kd_system, b.nm_system AS nmsys,c.nm_wilayah AS nmwil FROM ms_menu a INNER JOIN ms_system b ON a.kd_sistem = b.kd_system 
+INNER JOIN ms_wilayah c ON a.kd_wilayah = c.kd_wilayah WHERE a.kd_sistem = '$kdsys' AND c.kd_wilayah ='$kdwil' AND LEVEL='1'
+UNION ALL
+SELECT a.id, upper(a.title) AS Menu, a.url,a.LEVEL,a.parent_id,a.kd_wilayah,a.kd_sistem, 
+a.last_update,b.kd_system, b.nm_system AS nmsys,c.nm_wilayah AS nmwil FROM ms_menu a INNER JOIN ms_system b ON a.kd_sistem = b.kd_system 
+INNER JOIN ms_wilayah c ON a.kd_wilayah = c.kd_wilayah WHERE a.kd_sistem = '$kdsys' AND c.kd_wilayah ='$kdwil' AND LEVEL='2'
+UNION ALL
+SELECT a.id, upper(a.title) AS Menu, a.url,a.LEVEL,a.parent_id,a.kd_wilayah,a.kd_sistem, 
+a.last_update,b.kd_system, b.nm_system AS nmsys,c.nm_wilayah AS nmwil FROM ms_menu a INNER JOIN ms_system b ON a.kd_sistem = b.kd_system 
+INNER JOIN ms_wilayah c ON a.kd_wilayah = c.kd_wilayah WHERE a.kd_sistem = '$kdsys' AND c.kd_wilayah ='$kdwil' AND LEVEL='3'
+UNION ALL
+SELECT a.id, upper(a.title) AS Menu, a.url,a.LEVEL,a.parent_id,a.kd_wilayah,a.kd_sistem, 
+a.last_update,b.kd_system, b.nm_system AS nmsys,c.nm_wilayah AS nmwil FROM ms_menu a INNER JOIN ms_system b ON a.kd_sistem = b.kd_system 
+INNER JOIN ms_wilayah c ON a.kd_wilayah = c.kd_wilayah WHERE a.kd_sistem = '$kdsys' AND c.kd_wilayah ='$kdwil' AND LEVEL='4'
+ORDER BY id");
+
+    //return $query->result_array();
+    if($query->num_rows() >0 ){
+    $v = "
+    <div class='pull-right'>
+      <a target='_blank' href='".base_url()."app/pdfmon/".$kdwil."/".$kdsys."'  class='btn btn-xs  btn-default'>
+      <span>&nbsp;<i class='icon-print'></i>&nbsp;</span>
+      Print to PDF</a>
+
+     </div><br><br>
+
+    <table style='font-size:11px;' style='display:none' 
+     class='table table-bordered table-striped table-hover table-heading table-datatable' id='datatable-4'>
+          <thead style='background-color: #e5e5e5;'>
+            <tr>
+              <th>Nama Modul</th>
+              <th>Kode / Nama System</th>
+              <th>Nama Wilayah</th>
+              <th>Link</th>
+              
+              <th>Tanggal Perbaikan</th>
+              <th>Keterangan</th>              
+            </tr>
+          </thead>
+          <tbody>";
+         
+         foreach ($query->result_array() as $row)
+          { 
+
+            if($row['url']==''){
+              $viewfitur ='';
+              $viewlog ='';
+              $bold ='<b>';
+              $tglfix ='';
+
+            }else{
+             
+              $bold='';
+              $tglfix=$row['last_update'];
+              }
+
+            if($row['LEVEL']=='1' ){
+              $spasi='&nbsp;';
+              }
+            if($row['LEVEL']=='2' ){
+              $spasi='&nbsp;&nbsp;&nbsp;&nbsp;';
+              }
+            if($row['LEVEL']=='3'){
+              $spasi='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+              }
+            if($row['LEVEL']=='4'){
+              $bold='';
+              $spasi='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+              }
+          
+          $v .="<tr>";
+          $v .="<td>".$bold.$spasi.$row['Menu']."</td>";
+          $v .="<td>[".$row['kd_sistem']."]".$row['nmsys']."</td>";
+          $v .="<td>".$row['nmwil']."</td>";
+          $v .="<td>".$bold.$row['url']."</td>";
+          $v .="<td>".$tglfix."</td>";
+          $v .="<td></td>"; 
+          $v .="</tr>";
+           }
+              
+          
+          $v .="  </tbody>
+               </table>";
+          echo $v;
+
+      }else{
+        echo "<center> <h5>Tidak ada data dengan kriteria filter, periksa kembali pilihan filter diatas..!</h5> </center>";
+      }
+
+    }//end lap_monitoring
+
+
+ function lap_request($kdwil,$bulan){
+       $query=$this->db->query("
+         SELECT a.id, a.link_modul AS modul,DATE_FORMAT(a.tgl_req,'%d %b %Y %T') AS tglreq, a.uraian, a.prioritas, a.ta, 
+          DATE_FORMAT(a.tgl_selesai,'%d %b %Y %T') AS tgl_selesai, IF(a.tgl_selesai='','-',TIMEDIFF(a.tgl_selesai,a.tgl_req)) AS selisih, a.status, a.tgl_verifikasi, a.statusver, a.user_verifikasi,a.image, a.jns_req, a.ket_fitur,
+          a.kd_wilayah, a.`kd_system`,
+          IF(a.ta='0','-',d.nm_lengkap) AS namata,  IF(a.statusver='1','-',e.nm_lengkap) AS namaver, a.id_menu,b.nm_system AS nmsys,
+          c.nm_wilayah AS nmwil FROM ms_req a INNER JOIN ms_system b ON a.kd_system = b.kd_system
+          INNER JOIN ms_wilayah c ON a.kd_wilayah = c.kd_wilayah 
+          LEFT JOIN ms_user d ON d.user_name=a.ta 
+          LEFT JOIN ms_user e ON e.user_name=a.user_verifikasi
+          WHERE a.kd_wilayah ='$kdwil' 
+		  AND month(a.tgl_req)='$bulan' 
+		  ORDER BY a.tgl_req ASC");
+
+  if($query->num_rows() >0 ){
+      $tabel ="
+               <div class='pull-right'>
+                   <a target='_blank' href='".base_url()."app/pdfreq/".$kdwil."/".$bulan."'  class='btn btn-xs  btn-default'>
+                   <span>&nbsp;<i class='icon-print'></i>&nbsp;</span>
+                   Print to PDF</a>
+
+                   </div><br><br>
+
+                  <table style='font-size:11px;' style='display:none' 
+                   class='table table-bordered table-striped table-hover table-heading table-datatable' id='datatable-4'>
+                        <thead style='background-color: #e5e5e5;'>
+                          <tr>
+                            <th>Nama Daerah</th>
+                            <th>Nama System</th>
+                            <th>Tanggal Req</th>
+                            <th>Jenis Req</th>
+                            <th>Tenaga Ahli</th>
+                            <th>Pengerjaan</th>
+                            <th>Tanggal Selesai</th>
+                            <th>Lama Waktu <br> pengerjaan</th>
+                            <th>Verifikasi Oleh</th>
+                         
+                          </tr>
+                        </thead>
+                        <tbody>";
+
+
+          foreach($query->result_array() as $resulte)
+        {
+
+     
+       $coljnsreq='';
+        if($resulte['jns_req']=='1'){
+                $coljnsreq="Permasalahan";
+                }
+                if($resulte['jns_req']=='2'){
+                $coljnsreq="Update Fitur";
+                }
+                if($resulte['jns_req']=='3'){
+                $coljnsreq="Update Modul";
+                }
+
+       $kd_wilayah=$this->session->userdata('kd_wil');
+   
+          if($resulte['status']=='1'){
+             
+              $colact='Belum Selesai';
+
+          }else{
+              $colact='Sudah Selesai';
+              
+           
+          }
+
+
+          $colkoor= $resulte['namaver'];         
+          $colta = $resulte['namata'];
+          
+
+   
+
+       if($resulte['image']==''){
+        $colimg="<i class='icon-picture ' style='font-size:14px'></i>";
+       }else{
+        $colimg="<a class='single' href='../screenshoot/".$resulte['image']."' >
+        <i class='icon-picture ' style='color:blue;font-size:14px'></i></a>";
+       }
+
+
+
+
+           $tabel .="<tr>
+                      <td>".$resulte['nmwil']."</td>
+                      <td>".$resulte['nmsys']."</td>
+                      <td>".$resulte['tglreq']."</td>
+                      <td>".$coljnsreq."</td>";
+            $tabel .="<td>".$colta."</td>";
+            $tabel .="<td>".$colact."</td>";
+            $tabel .="<td>".$resulte['tgl_selesai']."</td>";
+            $tabel .="<td>".$resulte['selisih']."</td>";
+            $tabel .="<td>".$colkoor."</td>
+       
+
+            </tr>";
+            
+         }
+            $tabel .= "</tbody>
+               </table>";
+    
+
+       echo $tabel;
+       }else{
+        echo "<center> <h5>Tidak ada data dengan kriteria filter, periksa kembali pilihan filter diatas..!</h5> </center>";
+      }
+
+
+    }//end lap request
+
+ function list_sistem($kd_area,$kd_subarea){
+   
+   $query=$this->db->query("SELECT a.* from ms_wilayah_child a where a.kd_area='$kd_area' and a.kd_subarea='$kd_subarea' order by kd_sistem  ");
+
+  if($query->num_rows() >0 ){
+      $tabel ="
+	  <div class='widget-content'>
+	 <div class='control-group'>
+			<div class='controls'>	 
+                  <table style='font-size:11px;' style='display:none' 
+                   class='table table-bordered table-striped table-hover table-heading table-datatable' id='datatable-4'>
+                        <thead style='background-color: #e5e5e5;'>
+                          <tr>
+                            <th width='80px'>Kode Area</th>
+                            <th width='150px'>Kode Sistem</th>
+                            <th>Nama Sistem</th>
+                            <th width='100px;'>Tambah Modul</th>
+                          </tr>
+                        </thead>
+                        <tbody>";
+  foreach($query->result_array() as $resulte)
+        {
+           $tabel .="<tr>
+                      <td>".$resulte['kd_subarea']."</td>
+                      <td>".$resulte['kd_sistem']."</td>
+                      <td align='center'>".$resulte['nm_sistem']."</td>";
+            $tabel .="<td> 
+						<a class='btn btn-success btn-label-center' 
+						href='".base_url()."app/page_modul_form/".$resulte['kd_wilayah']."/".$resulte['kd_area']."/".$resulte['kd_subarea']."/".$resulte['kd_sistem']."/".$resulte['nm_sistem']."'>
+						<span><i class='icon-list'></i></span></a>
+					  </td>
+					</tr>";
+            
+         }
+            $tabel .= "</tbody>
+         </table>
+		 </div>
+		 </div>
+		 </div>";
+    
+
+       echo $tabel;
+       }else{
+        echo "<center> <h5>Tidak ada data dengan kriteria filter, periksa kembali pilihan filter diatas..!</h5> </center>";
+      }
+
+
+    }
+
+}//end m_data
+
+?>
